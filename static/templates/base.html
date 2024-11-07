@@ -1,0 +1,16 @@
+{% load static %}
+<html>
+    <head>
+        <title>TestVar!</title>
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" />
+    </head>
+
+    <body>
+        <div class="my-5 text-center container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </body>
+</html>
