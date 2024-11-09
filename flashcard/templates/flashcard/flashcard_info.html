@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{flashcard.question}}</h5>
+        <h6 class="card-subtitlemb-2 text-muted">Difficulty: {{flashcard.difficulty}}</h6>
+        <p class="card-text">{{flashcard.answer}}</p>
+        <a href="{% url 'flashcard-list' %}" class="btn btn-outline-secondary">Back</a>
+    </div>
+</div>    
+{% endblock %}
