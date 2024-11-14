@@ -12,11 +12,18 @@
     </div>
 </div>
 
-<ul class="container">
-    <div class="row">
+<ul class="container d-flex flex-wrap justify-content-start">
+    <div class="card m-2 p-2 bg-secondary text-light" style="flex: 1 1 30%; min-width: 250px;">
+        <div class="card-body text-start p-4">
+            <h5 class="card-title fw-light fs-2">New set</h5>
+            <h6 class="card-subtitle mb-2 text-muted fw-light"></h6>
+            <p class="card-text">Create a new set!</p>
+            <a href="{% url 'set-create' collection_id=sets.0.flashcard_collection.pk %}" class="btn btn-outline-light">Create a new set</a>
+        </div>
+    </div>
     {% for set in sets %}
-        <div class="col-sm">
-            <div class="card m-2 p-2">
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card m-2 p-2" style="flex: 1 1 30%; min-width: 250px;">
                 <div class="card-body text-start p-4">
                     <h5 class="card-title fw-light fs-2">{{set.title}}</h5>
                     {% if set.description %}
@@ -32,8 +39,7 @@
             </div>
         </div>
     {% endfor %}
-    </div>
-    <a href="{% url 'collection-list' %}" class="btn btn-secondary mt-4">Browse other collections</a>
-    <a href="{% url 'set-create' collection_id=sets.0.flashcard_collection.pk %}" class="btn btn-secondary mt-4">Add new set</a>
 </ul>
+<a href="{% url 'collection-list' %}" class="btn btn-secondary mt-4">Browse other collections</a>
+
 {% endblock %}

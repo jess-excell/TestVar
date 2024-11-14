@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import FlashCard, FlashcardSet, FlashcardCollection
 from django.urls import reverse_lazy
 
@@ -8,6 +8,17 @@ class FlashcardCollectionListView(ListView):
     context_object_name = "collections"
     template_name="flashcard/flashcard_collection_list.html"
 
+class FlashcardCollectionUpdateView(UpdateView):
+    model = FlashcardCollection
+    fields = ['title', 'description']
+    template_name = "flashcard/flashcard_collection_update.html"
+    
+class FlashcardCollectionCreateView(CreateView):
+    model=FlashcardCollection
+    fields=['user', 'title', 'description']
+    success_url="/flashcard/collections"
+    template_name="flashcard/flashcard_collection_create.html"
+    
 # class FlashcardCollectionDetailView(DetailView):
 #     model = FlashcardCollection
 #     context_object_name = "collection"
