@@ -1,5 +1,6 @@
 from django.views.generic import ListView, DetailView, CreateView
 from .models import FlashCard, FlashcardSet, FlashcardCollection
+from django.urls import reverse_lazy
 
 # Collection views
 class FlashcardCollectionListView(ListView):
@@ -25,7 +26,6 @@ class FlashcardSetCreateView(CreateView):
     model = FlashcardSet
     fields = ['title', 'description']
     template_name="flashcard/flashcard_set_create.html"
-    success_url = '/'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -36,6 +36,9 @@ class FlashcardSetCreateView(CreateView):
         collection = FlashcardCollection.objects.get(pk=self.kwargs["collection_id"])
         form.instance.flashcard_collection = collection
         return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('set-list', kwargs={'pk': self.kwargs['collection_id']})
 
 # class FlashcardSetDetailView(DetailView):
 #     model = FlashcardSet

@@ -13,12 +13,18 @@ class FlashcardCollection(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="flashcard_collection")
     description = models.TextField(default=None, blank=True, null=True)
     
+    def __str__(self):
+        return self.title
+    
 class FlashcardSet(models.Model):
     title = models.CharField(max_length=100)
     flashcard_collection = models.ForeignKey(FlashcardCollection, on_delete=models.CASCADE, related_name="flashcard_set")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField(default=None, blank=True, null=True)
+    
+    def __str__(self):
+        return self.title
 
 class FlashCard(models.Model):
     question = models.TextField()
@@ -27,6 +33,9 @@ class FlashCard(models.Model):
         choices=[(tag.value, tag.name.title()) for tag in Difficulty]
     )
     flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE, related_name="flashcard")
+    
+    def __str__(self):
+        return self.question
 
 # class Comment(models.Model):
 #     comment = models.TextField()
