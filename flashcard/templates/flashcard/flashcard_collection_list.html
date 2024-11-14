@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="overflow-hidden p-3 text-center">
+    <div class="mx-auto p-5">
+        <h1 class="display-1">Collections</h1>
+        <p class="lead">Test your knowledge with collections of study sets made by students just like you.</p>
+    </div>
+</div>
+
+<ul class="container">
+    <div class="row">
+    {% for collection in collections %}
+        <div class="col-sm">
+            <div class="card m-2 p-2">
+                <div class="card-body text-start p-4">
+                    <h5 class="card-title fw-light fs-2">{{collection.title}}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted fw-light">Created by: {{collection.user.username}}</h6>
+                    {% if collection.description %}
+                        <p class="card-text">{{collection.description}}</p>
+                    {% else %}
+                        <p class="card-text">The user has not added a description for this collection.</p>
+                    {% endif %}
+
+                    <a href="{% url 'set-list' collection_id=collection.id %}" class="btn btn-outline-secondary">View this set</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</ul>
+{% endblock %}

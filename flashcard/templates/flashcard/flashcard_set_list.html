@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="overflow-hidden p-3 text-center">
+    <div class="mx-auto p-5">
+        <h1 class="display-1">{{sets.0.flashcard_collection.title}}</h1>
+        {% if sets.0.flashcard_collection.description %}
+            <p class="lead">{{sets.0.flashcard_collection.description}}</p>
+        {% else %}
+            <p class="lead">The user has not added a description for this collection.</p>
+        {% endif %}
+    </div>
+</div>
+
+<ul class="container">
+    <div class="row">
+    {% for set in sets %}
+        <div class="col-sm">
+            <div class="card m-2 p-2">
+                <div class="card-body text-start p-4">
+                    <h5 class="card-title fw-light fs-2">{{set.title}}</h5>
+                    {% if set.description %}
+                        <p class="card-text">{{set.description}}</p>
+                    {% else %}
+                        <p class="card-text">The user has not added a description for this set.</p>
+                    {% endif %}
+
+                    <p class="card-text pt-2">Last updated: {{set.updated_at}}</p>
+                    <a href="{% url 'flashcard-list' collection_id=set.flashcard_collection.pk set_id=set.pk %}" class="btn btn-outline-secondary">Start revising {{set.title.lower}}</a>
+                    <a href="#" class="btn btn-danger">Edit set [ADMIN]</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+    <a href="{% url 'collection-list' %}" class="btn btn-secondary mt-4">Browse other collections</a>
+    <a href="{% url 'set-create' collection_id=sets.0.flashcard_collection.pk %}" class="btn btn-secondary mt-4">Add new set</a>
+</ul>
+{% endblock %}

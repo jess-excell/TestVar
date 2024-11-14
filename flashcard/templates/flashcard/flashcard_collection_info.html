@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="overflow-hidden p-3 text-center">
+    <div class="mx-auto p-5">
+        <h1 class="display-1">{{collection.title}}</h1>
+        {% if collection.description %}
+        <p class="lead">{{collection.description}}</p>
+        {% else %}
+        <p class="lead">The user has not added a description for this collection.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{collection.title}}</h5>
+        <h6 class="card-subtitlemb-2 text-muted">Created by: {{collection.user.username}}</h6>
+        {% if collection.description %}
+            <p class="card-text">{{collection.description}}</p>
+        {% else %}
+            <p class="card-text">The user has not added a description for this collection.</p>
+        {% endif %}
+
+        <h5 class="card-title">Browse this set</h5>
+        
+        <a href="{% url 'collection-list' %}" class="btn btn-outline-secondary">Back</a>
+    </div>
+</div>    
+{% endblock %}
