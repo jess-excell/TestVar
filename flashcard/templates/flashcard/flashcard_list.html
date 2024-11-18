@@ -3,7 +3,7 @@
 {% block content %}
 <ul class="list-group">
     {% for flashcard in flashcards %}
-        <a href="{% url 'flashcard-detail' pk=flashcard.id %}" class="list-group-item list-group-item-action">{{flashcard.question}}</a>
+        <a href="{% url 'flashcard-detail' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="list-group-item list-group-item-action">{{flashcard.question}}</a>
     {% endfor %}
 </ul>
 {% endblock %}

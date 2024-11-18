@@ -6,7 +6,7 @@
         <h5 class="card-title">{{flashcard.question}}</h5>
         <h6 class="card-subtitlemb-2 text-muted">Difficulty: {{flashcard.difficulty}}</h6>
         <p class="card-text">{{flashcard.answer}}</p>
-        <a href="{% url 'flashcard-list' %}" class="btn btn-outline-secondary">Back</a>
+        <a href="{% url 'flashcard-list' collection_id=collection_id set_id=set_id %}" class="btn btn-outline-secondary">Back</a>
     </div>
 </div>    
 {% endblock %}

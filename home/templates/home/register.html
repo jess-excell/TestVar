@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-3">Create account</h1>
+    <form method="POST" class="text-start mx-auto p-5 col-md-5">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input class="btn btn-secondary" type="submit" name="Submit"/>
+    </form>
+{% endblock %}
