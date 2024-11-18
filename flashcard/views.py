@@ -1,11 +1,10 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import FlashCard, FlashcardSet, FlashcardCollection
-from django.urls import reverse_lazy
 from django.http.response import HttpResponseRedirect
+from django.http import Http404
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from .models import FlashCard, FlashcardSet, FlashcardCollection
 
 # Collection views
 class FlashcardCollectionListView(ListView):
@@ -126,6 +125,27 @@ class FlashcardDetailView(DetailView):
 class FlashcardCreateView(LoginRequiredMixin, CreateView):
     model = FlashCard
     fields = ['question', 'answer', 'difficulty']
-    # template????
+    template_name="flashcard/flashcard_create.html"
     success_url = '/'
     login_url="/login"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collection_id'] = self.kwargs.get('collection_id')
+        context['set_id'] = self.kwargs.get('set_id')
+        
+        collection_id = self.kwargs.get('collection_id')
+        collection = get_object_or_404(FlashcardCollection, id=collection_id)
+
+        if not collection.public and collection.user != self.request.user:
+            raise Http404("You do not have permission to edit this set.")
+        
+        return context
+    
+    # Add user to collection info
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.flashcard_set = get_object_or_404(FlashcardSet, id=self.kwargs.get('set_id'))
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())

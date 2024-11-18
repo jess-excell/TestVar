@@ -2,6 +2,7 @@
 
 {% block content %}
 <ul class="list-group">
+    <a href="{% url 'flashcard-create' collection_id=collection_id set_id=set_id %}" class="list-group-item list-group-item-action">Create flashcard</a>
     {% for flashcard in flashcards %}
         <a href="{% url 'flashcard-detail' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="list-group-item list-group-item-action">{{flashcard.question}}</a>
     {% endfor %}

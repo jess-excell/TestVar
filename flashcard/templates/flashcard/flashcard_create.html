@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="overflow-hidden p-3 text-center">
+    <div class="mx-auto p-3">
+        <h1 class="display-1">New flashcard</h1>
+        <p class="lead">Create a new flashcard.</p>
+    </div>
+</div>
+
+<form action="{% url 'flashcard-create' collection_id=collection_id set_id=set_id %}" method="POST" class="col-md-5 mx-auto">
+    {% csrf_token %}
+    {% for item in form %}
+        <div class="p-2">
+            <p class="form-label">{{item.label}}</p>
+            {{item}}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary mt-2">Create flashcard</button>
+</form>
+{% endblock%}
