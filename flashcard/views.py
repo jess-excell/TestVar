@@ -4,7 +4,7 @@ from django.http import Http404
 from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
-from .models import FlashCard, FlashcardSet, FlashcardCollection
+from .models import FlashCard, FlashcardSet, FlashcardCollection, Comment
 from django.urls import reverse
 import datetime
 
@@ -76,6 +76,33 @@ class FlashcardCreateView(LoginRequiredMixin, CreateView):
         return reverse("flashcard-list", kwargs={
             "collection_id": self.kwargs.get('collection_id'),
             "set_id": self.kwargs.get("set_id"),
+        })
+        
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    fields = ["comment"]
+    template_name="flashcard/comment_create.html"
+    login_url="/login"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collection_id'] = self.kwargs['collection_id']
+        context['set_id'] = self.kwargs['set_id']
+        collection = get_object_or_404(FlashcardCollection, id=context['collection_id'])
+        
+        if not collection.public and collection.user != self.request.user:
+            raise Http404("You do not have permission to edit this set.")
+        return context
+    
+    def form_valid(self, form):
+        form.instance.flashcard_set = FlashcardSet.objects.get(pk=self.kwargs["set_id"])
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse("flashcard-list", kwargs={
+            "collection_id": self.kwargs.get('collection_id'),
+            "set_id": self.kwargs.get('set_id')
         })
 # endregion
 
@@ -150,6 +177,27 @@ class FlashcardDetailView(DetailView):
 
         if not collection.public and collection.user != self.request.user:
             raise Http404("You do not have permission to view this collection.")
+        
+        return context
+    
+class CommentListView(ListView):
+    model = Comment
+    context_object_name = "comments"
+    template_name = "flashcard/comment_list.html"
+    
+    def get_queryset(self):
+        return Comment.objects.filter(flashcard_set_id=self.kwargs.get('set_id'))
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collection_id'] = self.kwargs.get('collection_id')
+        context['set_id'] = self.kwargs.get('set_id')
+        collection = get_object_or_404(FlashcardCollection, id=context['collection_id'])
+
+        if not collection.public and collection.user != self.request.user:
+            raise Http404("You do not have permission to view this collection.")
+        
+        context["flashcard_set"] = get_object_or_404(FlashcardSet, id=context['set_id'])
         
         return context
 # endregion

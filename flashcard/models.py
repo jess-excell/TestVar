@@ -38,7 +38,10 @@ class FlashCard(models.Model):
     def __str__(self):
         return self.question
 
-# class Comment(models.Model):
-#     comment = models.TextField()
-#     set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE, related_name="comments")
-#     author = models.User()
+class Comment(models.Model):
+    comment = models.TextField()
+    flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment")
+    
+    def __str__(self):
+        return self.comment

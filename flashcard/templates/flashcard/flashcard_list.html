@@ -10,12 +10,13 @@
             <p class="lead">The user has not added a description for this collection.</p>
         {% endif %}
 
-        {% if flashcard_collection.user == user %}
         <div class="my-2">
-            <a href="{% url 'set-update' collection_id=collection_id set_id=set_id %}" class="btn btn-warning my-1">Edit set</a>
-            <a href="{% url 'set-delete' collection_id=collection_id set_id=set_id %}" class="btn btn-danger my-1">Delete set</a>
+            <a href="{% url 'comments-list' collection_id=collection_id set_id=set_id %}" class="btn btn-primary my-1">View comments</a>
+            {% if flashcard_collection.user == user %}
+                <a href="{% url 'set-update' collection_id=collection_id set_id=set_id %}" class="btn btn-warning my-1">Edit set</a>
+                <a href="{% url 'set-delete' collection_id=collection_id set_id=set_id %}" class="btn btn-danger my-1">Delete set</a>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 </div>  
 <ul class="container d-flex flex-wrap justify-content-start">

@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(FlashCard)
 admin.site.register(FlashcardSet)
 admin.site.register(FlashcardCollection)
+admin.site.register(Comment)
