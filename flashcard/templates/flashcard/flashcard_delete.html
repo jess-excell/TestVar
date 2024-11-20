@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user == flashcard_collection.user %}
+        <p class="lead fw-normal">Are you sure you want to delete this flashcard? <small class="lead fw-normal text-danger">This action action cannot be undone.</small></p>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="Delete my flashcard" class="btn btn-danger"/>
+            <a href="{% url 'flashcard-list' set_id=set_id collection_id=collection_id%}" class="btn btn-secondary">Back to flashcard</a>
+        </form>
+    {% else %}
+        <p class="lead fw-normal">You don't have permission to modify this flashcard.</p>
+        <a href="{% url 'flashcard-list' set_id=set_id collection_id=collection_id%}" class="btn btn-secondary">Back to flashcards</a>
+    {% endif %}
+{% endblock %}

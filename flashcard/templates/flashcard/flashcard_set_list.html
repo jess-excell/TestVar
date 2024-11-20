@@ -9,10 +9,16 @@
         {% else %}
             <p class="lead">The user has not added a description for this collection.</p>
         {% endif %}
+
+        {% if flashcard_collection.user == user %}
+        <a href="{% url 'collection-update' collection_id=flashcard_collection.pk %}" class="btn btn-outline-secondary">Edit collection</a>
+        <a href="{% url 'collection-delete' collection_id=flashcard_collection.pk %}" class="btn btn-danger">Delete collection</a>
+        {% endif %}
     </div>
 </div>
 
 <ul class="container d-flex flex-wrap justify-content-start">
+    {% if flashcard_collection.user == user %}
     <div class="card m-2 p-2 bg-secondary text-light" style="flex: 1 1 30%; min-width: 250px; max-width: 500px;">
         <div class="card-body text-start p-4">
             <h5 class="card-title fw-light fs-2">New set</h5>
@@ -21,6 +27,7 @@
             <a href="{% url 'set-create' collection_id=flashcard_collection.pk %}" class="btn btn-outline-light">Create a new set</a>
         </div>
     </div>
+    {% endif %}
     {% for set in sets %}
         <div class="col-12 col-md-6 col-lg-4">
             <div class="card m-2 p-2" style="flex: 1 1 30%; min-width: 250px;">
@@ -33,8 +40,7 @@
                     {% endif %}
 
                     <p class="card-text pt-2">Last updated: {{set.updated_at}}</p>
-                    <a href="{% url 'flashcard-list' collection_id=set.flashcard_collection.pk set_id=set.pk %}" class="btn btn-outline-secondary">Start revising {{set.title.lower}}</a>
-                    <a href="#" class="btn btn-danger">Edit set [ADMIN]</a>
+                    <a href="{% url 'flashcard-list' collection_id=set.flashcard_collection.pk set_id=set.pk %}" class="btn btn-outline-secondary my-1">Review {{set.title.lower}}</a>
                 </div>
             </div>
         </div>

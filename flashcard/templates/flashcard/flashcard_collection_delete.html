@@ -2,15 +2,10 @@
 
 {% block content %}
     {% if user == flashcard_collection.user %}
+        <p class="lead fw-normal">Are you sure you want to delete "{{flashcard_collection.title}}"? <small class="lead fw-normal text-danger">This action action cannot be undone.</small></p>
         <form action="" method="POST">
             {% csrf_token %}
-            {% for item in form %}
-                <div class="p-2">
-                    <p class="form-label">{{item.label}}</p>
-                    {{item}}
-                </div>
-            {% endfor %}
-            <input type="submit" label="Submit" class="btn btn-secondary"/>
+            <input type="submit" value="Delete my collection" class="btn btn-danger"/>
         </form>
     {% else %}
         <p class="lead fw-normal">You don't have permission to modify "{{flashcard_collection.title}}".</p>

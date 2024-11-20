@@ -1,10 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<ul class="list-group">
-    <a href="{% url 'flashcard-create' collection_id=collection_id set_id=set_id %}" class="list-group-item list-group-item-action">Create flashcard</a>
+<div class="overflow-hidden p-3 text-center">
+    <div class="mx-auto p-5">
+        <h1 class="display-1">{{flashcard_set.title}}</h1>
+        {% if flashcard_set.description %}
+            <p class="lead">{{flashcard_set.description}}</p>
+        {% else %}
+            <p class="lead">The user has not added a description for this collection.</p>
+        {% endif %}
+
+        {% if flashcard_collection.user == user %}
+        <div class="my-2">
+            <a href="{% url 'set-update' collection_id=collection_id set_id=set_id %}" class="btn btn-warning my-1">Edit set</a>
+            <a href="{% url 'set-delete' collection_id=collection_id set_id=set_id %}" class="btn btn-danger my-1">Delete set</a>
+        </div>
+        {% endif %}
+    </div>
+</div>  
+<ul class="container d-flex flex-wrap justify-content-start">
+    {% if flashcard_collection.user == user %}
+    <div class="card m-2 p-2 bg-secondary text-light" style="flex: 1 1 30%; min-width: 250px; max-width: 500px;">
+        <div class="card-body text-start p-4">
+            <h5 class="card-title fw-light fs-2">New flashcard</h5>
+            <h6 class="card-subtitle mb-2 text-muted fw-light"></h6>
+            <p class="card-text">Create a new flashcard!</p>
+            <a href="{% url 'flashcard-create' collection_id=collection_id set_id=set_id %}" class="btn btn-outline-light">Create a new flashcard</a>
+        </div>
+    </div>
+    {% endif %}
     {% for flashcard in flashcards %}
-        <a href="{% url 'flashcard-detail' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="list-group-item list-group-item-action">{{flashcard.question}}</a>
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card m-2 p-2" style="flex: 1 1 30%; min-width: 250px;">
+                <div class="card-body text-start p-4">
+                    <h5 class="card-title fw-light fs-2">{{flashcard.question}}</h5>
+                    <p class="card-text">Difficulty: {{flashcard.difficulty.title}}</p>
+                    <a href="{% url 'flashcard-detail' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="btn btn-outline-secondary my-1">See answer</a>
+                </div>
+            </div>
+        </div>
     {% endfor %}
 </ul>
+
+<a href="{% url 'set-list' collection_id=collection_id %}" class="btn btn-outline-secondary">Back to {{flashcard_collection.title.lower}}</a>
 {% endblock %}
