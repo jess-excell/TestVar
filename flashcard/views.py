@@ -40,10 +40,12 @@ class FlashcardSetCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         collection = FlashcardCollection.objects.get(pk=self.kwargs["collection_id"])
         if FlashcardSet.objects.filter(created_at__date = datetime.datetime.now()).count() > 19:
-            raise Http404("The daily limit for flashcards created has been reached. Please remove an existing set or try again tomorrow.")
+            raise Http404("The daily limit for flashcards created has been reached. Please remove an existing set created today or try again tomorrow.")
         else:
-            form.instance.flashcard_collection = collection
-            return super().form_valid(form)
+            self.object = form.save(commit=False)
+            self.object.flashcard_collection = collection
+            self.object.save()
+            return HttpResponseRedirect(self.get_success_url())
     
     def get_success_url(self):
         return reverse("set-list", kwargs={
@@ -99,9 +101,11 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):
-        form.instance.flashcard_set = FlashcardSet.objects.get(pk=self.kwargs["set_id"])
-        form.instance.user = self.request.user
-        return super().form_valid(form)
+        self.object = form.save(commit=False)
+        self.object.flashcard_set = FlashcardSet.objects.get(pk=self.kwargs["set_id"])
+        self.object.user = self.request.user
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
     
     def get_success_url(self):
         return reverse("flashcard-list", kwargs={

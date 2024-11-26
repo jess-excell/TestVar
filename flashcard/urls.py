@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import *
-from . import views
+from flashcard import views
 
 urlpatterns = [
     # Collections

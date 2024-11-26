@@ -21,7 +21,7 @@ class FlashcardSet(models.Model):
     title = models.CharField(max_length=100)
     flashcard_collection = models.ForeignKey(FlashcardCollection, on_delete=models.CASCADE, related_name="flashcard_set")
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField(default=None, blank=True, null=True)
     
     def __str__(self):

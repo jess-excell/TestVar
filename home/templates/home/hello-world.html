@@ -7,7 +7,7 @@
         <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" />
     </head>
 
-    <body class="d-flex flex-column min-vh-100">
+    <body class="flex-column min-vh-100">
         <nav class="navbar navbar-light bg-dark py-3">
             <div class="text-left px-3">
                 <a role="button" class="btn text-white navbar-brand" href="{% url 'home' %}">TestVar</a>
@@ -24,6 +24,9 @@
             </div>
         </nav>
 
+        <div class="text-center">
+            <a class="btn btn-danger h-20 w-50" href="/api">API</a>
+        </div>
         <div class="overflow-hidden p-5 text-center bg-light">
             <div class="mx-auto p-5">
                 <h1 class="display-1 fw-normal">TestVar</h1>
@@ -33,12 +36,8 @@
 
         <div class="overflow-hidden p-4 text-center">
             <div class="col-md-5 mx-auto my-5">
-                <div class="container-fluid">
-                    <p class="lead fw-normal fs-4">TestVar presents a state of the art flashcard learning experience, featuring the ability to share and collaborate with fellow students.</p>
-                </div>
-                <div class="container-fluid">
-                    <a role="button" class="btn btn-outline-secondary" href="{% url 'collection-list' %}">Try it out</a>
-                </div>
+                <p class="lead fw-normal fs-4">TestVar presents a state of the art flashcard learning experience, featuring the ability to share and collaborate with fellow students.</p>
+                <a role="button" class="btn btn-outline-secondary" href="{% url 'collection-list' %}">Try it out</a>
             </div>
         </div>
 
@@ -56,12 +55,6 @@
                         <p class="lead">Test yourself on our extensive database of flashcards created by students just like you.</p>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="position-relative overflow-hidden p-3 text-center">
-            <div class="col-md-5 mx-auto my-5">
-                Big statement
             </div>
         </div>
 
