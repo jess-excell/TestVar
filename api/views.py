@@ -1,12 +1,15 @@
 #from django.contrib.auth.models import user
 from flashcard.models import *
+from django.contrib.auth.models import User
+from django.db.models import Q
 from .serializers import *
 from rest_framework import viewsets, permissions
-from django.db.models import Q
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.http import HttpResponseNotFound, HttpResponseBadRequest, HttpResponseNotAllowed
-import datetime
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
+import datetime
+from .variables import API_VERSION
 
 class FlashcardViewSet(viewsets.ModelViewSet):
     queryset = FlashCard.objects.all()
@@ -111,3 +114,10 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
+    
+    
+# Get API doesn't need a modelviewset
+class APIVersionView(APIView):
+    def get(self, request):
+        # Return the API version
+        return Response({"version": API_VERSION})

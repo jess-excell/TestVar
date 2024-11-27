@@ -9,7 +9,7 @@ servers:
   - url: http://testvar.difcsi.hu/api
     description: Reference server
 paths:
-  /:
+  /version:
     get:
       summary: "Return the active API version"
       tags:
