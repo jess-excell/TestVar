@@ -53,12 +53,11 @@ class UserSerializer(serializers.ModelSerializer):
         
 class CommentSerializer(serializers.ModelSerializer):
     flashcard_set = serializers.PrimaryKeyRelatedField(queryset=FlashcardSet.objects.all())
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
     
     class Meta:
         model = Comment
         fields = ["id", "comment", "flashcard_set", "user"]
-        read_only_fields = ["user"]
     
     # Add user id to created set
     def create(self, validated_data):
