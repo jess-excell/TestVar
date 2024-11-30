@@ -6,7 +6,7 @@ from .serializers import *
 from rest_framework import viewsets, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import HttpResponseNotFound, HttpResponseBadRequest, HttpResponseNotAllowed
+from django.http import HttpResponseNotFound, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 import datetime
 from .variables import API_VERSION
@@ -52,7 +52,7 @@ class FlashcardSetViewSet(viewsets.ModelViewSet) :
         flashcard_collection = get_object_or_404(FlashcardCollection, id=request.data.get("flashcard_collection"))
         
         if request.user != flashcard_collection.user:
-            return HttpResponseNotAllowed("You are trying to add a set to a collection that you do not own.")
+            return HttpResponseForbidden("You are trying to add a set to a collection that you do not own.")
         else:
             return super().create(request, *args, **kwargs)
         
@@ -60,7 +60,7 @@ class FlashcardSetViewSet(viewsets.ModelViewSet) :
         flashcard_collection = get_object_or_404(FlashcardCollection, id=request.data.get("flashcard_collection"))
         
         if flashcard_collection.user != request.user:
-            return HttpResponseNotAllowed("You are trying to move this set to a collection that you do not own.")
+            return HttpResponseForbidden("You are trying to move this set to a collection that you do not own.")
         # update time
         return super().update(request, *args, **kwargs)
 
@@ -75,15 +75,17 @@ class FlashcardCollectionViewSet(viewsets.ModelViewSet):
         else:
             return FlashcardCollection.objects.all()
         
+    
+        
     def update(self, request, *args, **kwargs):
         if request.user != self.get_object().user:
-            return HttpResponseNotAllowed("You are trying to change the owner of a set. This is forbidden.")
+            return HttpResponseForbidden("You are trying to change the owner of a set. This is forbidden.")
         else:
             return super().update(request, *args, **kwargs)
         
     def destroy(self, request, *args, **kwargs):
         if request.user != self.get_object().user:
-            return HttpResponseNotAllowed("You do not have permission to delete this set.")
+            return HttpResponseForbidden("You do not have permission to delete this set.")
         else:
             return super().destroy(request, *args, **kwargs)
 
@@ -97,16 +99,24 @@ class CommentViewSet(viewsets.ModelViewSet):
             return Comment.objects.filter(Q(user=self.request.user) | Q(flashcard_set__flashcard_collection__public=True))
         else:
             return Comment.objects.all()
+        
+    def create(self, request, *args, **kwargs):
+        flashcard_set = get_object_or_404(FlashcardSet, id=request.data.get("flashcard_set"))
+        flashcard_collection = flashcard_set.flashcard_collection
+        if ((request.user != flashcard_collection.user) and not flashcard_collection.public):
+            return HttpResponseForbidden("You are trying to add a comment to a private set that you do not own.")
+        else:
+            return super().create(request, *args, **kwargs)
     
     def update(self, request, *args, **kwargs):
         if request.user != self.get_object().user:
-            return HttpResponseNotAllowed("You do not have permission to modify this set.")
+            return HttpResponseForbidden("You do not have permission to modify this set.")
         else:
             return super().update(request, *args, **kwargs)
     
     def destroy(self, request, *args, **kwargs):
         if request.user != self.get_object().user:
-            return HttpResponseNotAllowed("You do not have permission to delete this set.")
+            return HttpResponseForbidden("You do not have permission to delete this set.")
         else:
             return super().destroy(request, *args, **kwargs)
     
