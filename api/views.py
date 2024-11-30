@@ -123,13 +123,16 @@ class CommentViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
     
     def destroy(self, request, *args, **kwargs):
         if self.get_object().is_superuser:
             return HttpResponseForbidden("You do not have permission to delete a superuser.")
         return super().destroy(request, *args, **kwargs)
     
+    def get_permissions(self):
+        if self.action == "create":
+            return [permissions.AllowAny()]
+        return [permissions.IsAdminUser()]
     
 # Get API doesn't need a modelviewset
 class APIVersionView(APIView):
