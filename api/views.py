@@ -125,6 +125,11 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
     
+    def destroy(self, request, *args, **kwargs):
+        if self.get_object().is_superuser:
+            return HttpResponseForbidden("You do not have permission to delete a superuser.")
+        return super().destroy(request, *args, **kwargs)
+    
     
 # Get API doesn't need a modelviewset
 class APIVersionView(APIView):
