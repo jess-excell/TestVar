@@ -125,6 +125,11 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     
     def destroy(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            if self.request.user == self.get_object():
+                return super().destroy(request, *args, **kwargs)
+            else:
+                return HttpResponseForbidden("You do not have permission to delete another user.") 
         if self.get_object().is_superuser:
             return HttpResponseForbidden("You do not have permission to delete a superuser.")
         return super().destroy(request, *args, **kwargs)
@@ -132,6 +137,8 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == "create":
             return [permissions.AllowAny()]
+        if self.action == "destroy":
+            return [permissions.IsAuthenticated()]
         return [permissions.IsAdminUser()]
     
 # Get API doesn't need a modelviewset
