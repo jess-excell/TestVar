@@ -50,10 +50,17 @@ class UserSerializer(serializers.ModelSerializer):
         if password:
             instance.set_password(password)   
         return super().update(instance, validated_data)
-        
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If method is post then password IS needed to create an account
+        if self.context.get("request") and self.context["request"].method == "POST":
+            self.fields["password"].required = True
+    
 class CommentSerializer(serializers.ModelSerializer):
     flashcard_set = serializers.PrimaryKeyRelatedField(queryset=FlashcardSet.objects.all())
     user = serializers.PrimaryKeyRelatedField(read_only=True)
+    comment = serializers.CharField(allow_blank=False, required=True)
     
     class Meta:
         model = Comment
