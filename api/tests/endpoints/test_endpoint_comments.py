@@ -48,7 +48,6 @@ class TestCommentEndpoints(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["comment"], "TEST COMMENT")
         
-    
     def test_post_comment_as_superuser(self):
         self.client.login(username="superuser", password="superpassword")
         response = self.client.post("/api/comments/", data={
@@ -107,7 +106,6 @@ class TestCommentEndpoints(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["comment"], "updated comment")
 
-    # Failing but i think the serializer should test this instead
     def test_put_bad_comment(self):
         comment = Comment.objects.create(
             comment="", 
@@ -116,7 +114,7 @@ class TestCommentEndpoints(APITestCase):
         
         self.client.login(username="standard_user", password="userpassword")
         response = self.client.patch(f"/api/comments/{comment.id}/", data={
-            "comment": "updated comment",
+            "comment": "",
             "flashcard_set": self.standard_user_flashcard_set,
             "user": self.standard_user
         })
