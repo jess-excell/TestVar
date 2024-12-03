@@ -14,38 +14,65 @@ from .variables import API_VERSION
 class FlashcardViewSet(viewsets.ModelViewSet):
     queryset = FlashCard.objects.all()
     serializer_class = FlashCardSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
         
     def get_queryset(self):
         if self.request.user.is_superuser:
             return FlashCard.objects.all()
-        else:
+        if self.request.user.is_authenticated:
             return FlashCard.objects.filter(Q(flashcard_set__flashcard_collection__user=self.request.user) | Q(flashcard_set__flashcard_collection__public=True))
+        return FlashCard.objects.filter(flashcard_set__flashcard_collection__public=True)
     
     def create(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseForbidden("You do not have permission to add to this set.")
+        
         flashcard_set = get_object_or_404(FlashcardSet, id=request.data.get("flashcard_set"))
         flashcard_collection = flashcard_set.flashcard_collection
-        # if don't own set don't let them add to it
-        if request.user != flashcard_collection.user:
-            return HttpResponseNotAllowed("You are trying to add a set to a collection that you do not own.")
+        
+        if self.request.user != flashcard_collection.user:
+            return HttpResponseForbidden("You are trying to add a set to a collection that you do not own.")
         else:
             return super().create(request, *args, **kwargs)
     
-    def perform_create(self, serializer):
-        return super().perform_create(serializer)
+    def update(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseForbidden("You do not have permission to add to this set.")
+        
+        flashcard_set = get_object_or_404(FlashcardSet, id=request.data.get("flashcard_set"))
+        flashcard_collection = flashcard_set.flashcard_collection
+        
+        if self.request.user != flashcard_collection.user:
+            return HttpResponseForbidden("You do not have permission to modify this.")
+        return super().update(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseForbidden("You do not have permission to add to this set.")
+        
+        flashcard = get_object_or_404(FlashCard, id=self.kwargs.get("pk"))
+        flashcard_collection = flashcard.flashcard_set.flashcard_collection
+        
+        if not self.request.user.is_superuser and self.request.user != flashcard_collection.user:
+            return HttpResponseForbidden("You do not have permission to modify this.")
+        return super().destroy(request, *args, **kwargs)
 
 class FlashcardSetViewSet(viewsets.ModelViewSet) :
     queryset = FlashcardSet.objects.all()
     serializer_class = FlashcardSetSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     
     def get_queryset(self):
         if self.request.user.is_superuser:
             return FlashcardSet.objects.all()
-        else:
+        if self.request.user.is_authenticated:
             return FlashcardSet.objects.filter(Q(flashcard_collection__user=self.request.user) | Q(flashcard_collection__public=True))
+        return FlashcardSet.objects.filter(flashcard_collection__public=True)
     
     def create(self, request, *args, **kwargs):
+        if self.request.user.is_anonymous:
+            return HttpResponseNotAllowed("Please log in to create a set.")
+        
         if FlashcardSet.objects.filter(created_at__date = datetime.datetime.now()).count() > 19:
             return HttpResponseNotAllowed("The daily limit for flashcards created has been reached. Please remove an existing set created today or try again tomorrow.")
         
@@ -57,37 +84,51 @@ class FlashcardSetViewSet(viewsets.ModelViewSet) :
             return super().create(request, *args, **kwargs)
         
     def update(self, request, *args, **kwargs):
-        flashcard_collection = get_object_or_404(FlashcardCollection, id=request.data.get("flashcard_collection"))
+        if self.request.user.is_anonymous:
+            return HttpResponseForbidden("You do not have permission to modify this.")
         
-        if flashcard_collection.user != request.user:
+        flashcard_set_id = self.kwargs.get("pk")
+        flashcard_set = get_object_or_404(FlashcardSet, id=flashcard_set_id)
+        
+        if flashcard_set.flashcard_collection.user != request.user:
             return HttpResponseForbidden("You are trying to move this set to a collection that you do not own.")
         # update time
         return super().update(request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        if self.request.user.is_anonymous:
+            return HttpResponseForbidden("You do not have permission to modify this.")
+        
+        flashcard_set_id = self.kwargs.get("pk")
+        flashcard_set = get_object_or_404(FlashcardSet, id=flashcard_set_id)
+        
+        if not request.user.is_superuser and flashcard_set.flashcard_collection.user != request.user:
+            return HttpResponseForbidden("You do not have permission to modify this.")
+        return super().destroy(request, *args, **kwargs)
+
 class FlashcardCollectionViewSet(viewsets.ModelViewSet):
     queryset = FlashcardCollection.objects.all()
     serializer_class = FlashcardCollectionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     
     def get_queryset(self):
-        if (not self.request.user.is_superuser):
-            return FlashcardCollection.objects.filter(Q(user=self.request.user) | Q(public=True))
-        else:
+        if self.request.user.is_superuser:
             return FlashcardCollection.objects.all()
-        
+        if self.request.user.is_authenticated:
+            return FlashcardCollection.objects.filter(Q(user=self.request.user) | Q(public=True))
+        return FlashcardCollection.objects.filter(public=True)
     
-        
     def update(self, request, *args, **kwargs):
-        if request.user != self.get_object().user:
-            return HttpResponseForbidden("You are trying to change the owner of a set. This is forbidden.")
-        else:
-            return super().update(request, *args, **kwargs)
+        if not self.request.user.is_authenticated or request.user != self.get_object().user:
+            return HttpResponseForbidden("You don't have permission to modify this set.")
+        return super().update(request, *args, **kwargs)
         
     def destroy(self, request, *args, **kwargs):
-        if request.user != self.get_object().user:
-            return HttpResponseForbidden("You do not have permission to delete this set.")
-        else:
-            return super().destroy(request, *args, **kwargs)
+        if not self.request.user.is_authenticated:
+            return HttpResponseForbidden("You don't have permission to delete this.")
+        if not self.request.user.is_superuser and request.user != self.get_object().user:
+            return HttpResponseForbidden("You don't have permission to delete this.")
+        return super().destroy(request, *args, **kwargs)
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
