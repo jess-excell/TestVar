@@ -55,7 +55,7 @@ class EndpointTests(APITestCase):
     # region Get all flashcards
     def test_get_flashcards_as_logged_out_user(self):
         response = self.client.get('/api/flashcards/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         
     def test_get_flashcards_as_standard_user(self):
         self.client.login(username="standard_user", password="standard_password")
@@ -72,7 +72,7 @@ class EndpointTests(APITestCase):
         self.assertContains(response, self.flashcard_private)
     
     def test_get_flashcards_as_superuser(self):
-        self.client.login(username="superuser", password="super_password")
+        self.client.login(username="super_user", password="super_password")
         response = self.client.get('/api/flashcards/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, self.flashcard_public)
@@ -81,7 +81,7 @@ class EndpointTests(APITestCase):
     # region Get public flashcard by ID
     def test_get_public_flashcard_by_id_as_logged_out_user(self):
         response = self.client.get(f'/api/flashcards/{self.flashcard_public.id}/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
     
     def test_get_public_flashcard_by_id_as_standard_user(self):
         self.client.login(username="standard_user", password="standard_password")
@@ -104,12 +104,12 @@ class EndpointTests(APITestCase):
     # region Get private flashcards by ID
     def test_get_private_flashcard_by_id_as_logged_out_user(self):
         response = self.client.get(f'/api/flashcards/{self.flashcard_private.id}/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_get_private_flashcard_by_id_as_standard_user(self):
         self.client.login(username="standard_user", password="standard_password")
         response = self.client.get(f'/api/flashcards/{self.flashcard_private.id}/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
     def test_get_private_flashcard_by_id_as_owner(self):
         self.client.login(username="owner", password="owner_password")

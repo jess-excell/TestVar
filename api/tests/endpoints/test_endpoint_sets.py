@@ -15,8 +15,7 @@ class EndpointTests(APITestCase):
             password="owner_password")
         cls.standard_user = User.objects.create_user(
             username="standard_user",
-            password="standard_password"
-        )
+            password="standard_password")
         
         # Public setup
         cls.flashcard_collection_public = FlashcardCollection.objects.create(
@@ -45,7 +44,9 @@ class EndpointTests(APITestCase):
     
     def test_get_sets_as_logged_out_user(self):
         response = self.client.get('/api/sets/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, self.flashcard_set_public)
+        self.assertNotContains(response, self.flashcard_set_private)
     
     def test_get_sets_as_standard_user(self):
         self.client.login(username="standard_user", password="standard_password")
@@ -71,7 +72,8 @@ class EndpointTests(APITestCase):
     # region Get public flashcard by ID
     def test_get_public_set_by_id_as_logged_out_user(self):
         response = self.client.get(f'/api/sets/{self.flashcard_set_public.id}/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, self.flashcard_set_public)
     
     def test_get_public_flashcard_set_by_id_as_standard_user(self):
         self.client.login(username="standard_user", password="standard_password")
