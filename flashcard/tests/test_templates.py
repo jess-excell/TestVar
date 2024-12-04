@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection
-from django.http import HttpResponseNotFound
 
 class FlashcardTemplateTests(TestCase):
     @classmethod
@@ -160,3 +159,5 @@ class FlashcardCollectionTemplateTests(TestCase):
         self.client.login(username="user", password="password")
         response = self.client.get(f"/flashcard/collections/{self.public_collection.id}/delete")
         self.assertTemplateUsed(response, "flashcard/flashcard_collection_delete.html")
+        
+        # missing tests for comments
