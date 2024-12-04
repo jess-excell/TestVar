@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.urls import reverse
 
 class HomePageTemplateTests(TestCase):
     def test_template_used(self):
