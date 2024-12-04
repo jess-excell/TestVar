@@ -277,20 +277,15 @@ class FlashCardUpdateView(LoginRequiredMixin, UpdateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        collection_id = self.kwargs.get('collection_id')
-        set_id = self.kwargs.get('set_id')
-        flashcard_id = self.kwargs.get('flashcard_id')
+        context['flashcard_id'] = self.kwargs.get('flashcard_id')
+        context['set_id'] = self.kwargs.get('set_id')
+        context['collection_id'] = self.kwargs.get('collection_id')
+        context['flashcard_collection'] = get_object_or_404(FlashcardCollection, id=context['collection_id'])
         
-        context['collection_id'] = collection_id
-        context['set_id'] = set_id
-        context['flashcard_id'] = flashcard_id
-        collection = get_object_or_404(FlashcardCollection, id=collection_id)
+        if context["flashcard_collection"].user != self.request.user:
+            raise Http404("The flashcard could not be found.")
         
-        if collection.user != self.request.user:
-            raise Http404("You do not have permission to modify this set.")
-        
-        context['flashcard_collection'] = get_object_or_404(FlashcardCollection, id=collection_id)
-        context['flashcard'] = get_object_or_404(FlashCard, id=flashcard_id)
+        context['flashcard'] = get_object_or_404(FlashCard, id=context['flashcard_id'])
         return context    
     
     def get_success_url(self):
@@ -348,7 +343,7 @@ class FlashcardSetDeleteView(LoginRequiredMixin, DeleteView):
         return reverse("set-list", kwargs={
             "collection_id": self.kwargs.get('collection_id'),
         })
-    
+
 class FlashCardDeleteView(LoginRequiredMixin, DeleteView):
     model = FlashCard
     template_name = "flashcard/flashcard_delete.html"
