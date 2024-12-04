@@ -52,6 +52,7 @@ class FlashcardTemplateTests(TestCase):
     def test_template_used_create(self):
         self.client.login(username="user", password="password")
         response = self.client.get(f"/flashcard/collections/{self.public_collection.id}/{self.public_set.id}/create")
+        self.assertNotEqual(response.status_code, 404)
         self.assertTemplateUsed(response, "flashcard/flashcard_create.html")
     
     def test_template_used_update(self):

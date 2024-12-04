@@ -43,7 +43,7 @@ class SetCreateTests(TestCase):
             "description": "DESCRIPTION",
             "flashcard_collection": self.public_collection
         }, follow=True)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "TITLE")
         self.assertContains(response, "DESCRIPTION")
     

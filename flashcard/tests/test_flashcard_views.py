@@ -270,7 +270,7 @@ class FlashcardDeleteTests(TestCase):
         response = self.client.delete(f"/flashcard/collections/{self.private_collection.id}/{self.private_set.id}/{self.private_flashcard.id}/delete", follow=True)
         self.assertEqual(response.status_code, 200)
     
-    def test_get_delete_flashcard_as_admin(self):
+    def test_get_delete_flashcard_as_superuser(self):
         self.client.login(username="super_user", password="password")
         response = self.client.delete(f"/flashcard/collections/{self.private_collection.id}/{self.private_set.id}/{self.private_flashcard.id}/delete", follow=True)
         self.assertEqual(response.status_code, 200)

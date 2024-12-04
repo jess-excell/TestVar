@@ -30,7 +30,7 @@ class FlashcardSetCreateView(LoginRequiredMixin, CreateView):
     fields = ['title', 'description']
     template_name="flashcard/flashcard_set_create.html"
     login_url="/login"
-
+    
     # Get just flashcard collection id
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -41,6 +41,8 @@ class FlashcardSetCreateView(LoginRequiredMixin, CreateView):
         collection = FlashcardCollection.objects.get(pk=self.kwargs["collection_id"])
         if FlashcardSet.objects.filter(created_at__date = datetime.datetime.now()).count() > 19:
             raise Http404("The daily limit for flashcards created has been reached. Please remove an existing set created today or try again tomorrow.")
+        elif collection.user != self.request.user:
+            raise Http404("You do not have permission to edit this set.")
         else:
             self.object = form.save(commit=False)
             self.object.flashcard_collection = collection
@@ -63,15 +65,13 @@ class FlashcardCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['collection_id'] = self.kwargs.get('collection_id')
         context['set_id'] = self.kwargs.get('set_id')
-        collection = get_object_or_404(FlashcardCollection, id=context['collection_id'])
-
-        if not collection.public and collection.user != self.request.user:
-            raise Http404("You do not have permission to edit this set.")
-        
         return context
     
     # Add user to collection info
     def form_valid(self, form):
+        collection = get_object_or_404(FlashcardCollection, id=self.kwargs.get('collection_id'))
+        if collection.user != self.request.user:
+            raise Http404("You do not have permission to edit this set.")
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.flashcard_set = get_object_or_404(FlashcardSet, id=self.kwargs.get('set_id'))
@@ -122,7 +122,9 @@ class FlashcardCollectionListView(ListView):
     
     # Only get public flashcards and user's private flashcards
     def get_queryset(self):
-        if self.request.user.is_authenticated:
+        if self.request.user.is_superuser:
+            return FlashcardCollection.objects.all()
+        elif self.request.user.is_authenticated:
             return FlashcardCollection.objects.filter(Q(public=True) | Q(user=self.request.user))
         else:
             return FlashcardCollection.objects.filter(public=True)
@@ -141,7 +143,7 @@ class FlashcardSetListView(ListView):
         collection_id = self.kwargs.get('collection_id')
         
         context['flashcard_collection'] = get_object_or_404(FlashcardCollection, id=collection_id)
-        if context['flashcard_collection'].user != self.request.user and context['flashcard_collection'].public != True:
+        if context['flashcard_collection'].user != self.request.user and context['flashcard_collection'].public != True and not self.request.user.is_superuser:
             raise Http404("You do not have permission to view this collection.")
 
         return context
@@ -165,7 +167,7 @@ class FlashcardListView(ListView):
         context['set_id'] = set_id
         context["flashcard_collection"] = get_object_or_404(FlashcardCollection, id=collection_id)
         
-        if context["flashcard_collection"].user != self.request.user and not context["flashcard_collection"].public:
+        if context["flashcard_collection"].user != self.request.user and not context["flashcard_collection"].public and not self.request.user.is_superuser:
             raise Http404("You do not have permission to view this collection.")
         
         context['flashcard_set'] = get_object_or_404(FlashcardSet, id=set_id)
@@ -183,7 +185,7 @@ class FlashcardDetailView(DetailView):
         context['set_id'] = self.kwargs.get('set_id')
         collection = get_object_or_404(FlashcardCollection, id=context['collection_id'])
 
-        if not collection.public and collection.user != self.request.user:
+        if not collection.public and collection.user != self.request.user and not self.request.user.is_superuser:
             raise Http404("You do not have permission to view this collection.")
         
         return context
@@ -303,14 +305,17 @@ class FlashcardCollectionDeleteView(LoginRequiredMixin, DeleteView):
     pk_url_kwarg = "collection_id"
     login_url = "/login"
     
+    def get_queryset(self):
+        collection_id = self.kwargs.get('collection_id')
+        collection = get_object_or_404(FlashcardCollection, id=collection_id)
+        if collection.user != self.request.user and not self.request.user.is_superuser:
+            raise Http404("You do not have permission to modify this collection.")
+        return super().get_queryset()
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         collection_id = self.kwargs.get('collection_id')
-        
         context['flashcard_collection'] = get_object_or_404(FlashcardCollection, id=collection_id)
-        if context['flashcard_collection'].user != self.request.user:
-            raise Http404("You do not have permission to modify this collection.")
-
         return context
     
     def get_success_url(self):
@@ -322,19 +327,19 @@ class FlashcardSetDeleteView(LoginRequiredMixin, DeleteView):
     pk_url_kwarg = "set_id"
     login_url = "/login"
     
+    def get_queryset(self):
+        collection = get_object_or_404(FlashcardCollection, id=self.kwargs.get('collection_id'))
+        if collection.user != self.request.user and not self.request.user.is_superuser:
+            raise Http404()
+        return super().get_queryset()
+    
     # Get flashcard collection info
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         collection_id = self.kwargs.get('collection_id')
         set_id = self.kwargs.get('set_id')
-        
         context['collection_id'] = collection_id
         context['set_id'] = set_id
-        collection = get_object_or_404(FlashcardCollection, id=collection_id)
-        
-        if collection.user != self.request.user and not collection.public:
-            raise Http404("You do not have permission to modify this set.")
-        
         context['flashcard_collection'] = get_object_or_404(FlashcardCollection, id=collection_id)
         context['flashcard_set'] = get_object_or_404(FlashcardSet, id=set_id)
         return context
@@ -355,11 +360,13 @@ class FlashCardDeleteView(LoginRequiredMixin, DeleteView):
         context['collection_id'] = self.kwargs.get('collection_id')
         context['set_id'] = self.kwargs.get('set_id')
         context["flashcard_collection"] = get_object_or_404(FlashcardCollection, id=context['collection_id'])
-
-        if context["flashcard_collection"].user != self.request.user:
-            raise Http404("You do not have permission to edit this set.")
-        
         return context
+    
+    def get_queryset(self):
+        collection = get_object_or_404(FlashcardCollection, id=self.kwargs.get('collection_id'))
+        if collection.user != self.request.user and not self.request.user.is_superuser:
+            raise Http404("Not found")
+        return super().get_queryset()
     
     def get_success_url(self):
         return reverse("flashcard-list", kwargs={

@@ -22,7 +22,7 @@ class CollectionCreateTests(TestCase):
             "title": "TITLE",
             "description": "DESCRIPTION"
         }, follow=True)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "TITLE")
         self.assertContains(response, "DESCRIPTION")
     
@@ -32,7 +32,7 @@ class CollectionCreateTests(TestCase):
             "title": "TITLE",
             "description": "DESCRIPTION"
         }, follow=True)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
 
 class CollectionReadTests(TestCase):
     @classmethod
@@ -70,7 +70,7 @@ class CollectionReadTests(TestCase):
     
     def test_get_all_collections_superuser(self):
         self.client.login(username="super_user", password="password")
-        response = self.client.get(f"/flashcard/collection")
+        response = self.client.get(f"/flashcard/collections")
         self.assertContains(response, self.public_collection)
         self.assertContains(response, self.private_collection)
         
