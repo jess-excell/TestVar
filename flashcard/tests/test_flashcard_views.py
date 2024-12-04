@@ -17,11 +17,6 @@ class FlashcardCreateTests(TestCase):
             title="Public set title", 
             flashcard_collection=cls.public_collection, 
             description="Description" )
-        cls.public_flashcard = FlashCard.objects.create(
-            question="Public question", 
-            answer="Public answer", 
-            difficulty="easy",
-            flashcard_set=cls.public_set)
         
         cls.private_collection = FlashcardCollection.objects.create(
             title="Collection", 
@@ -31,11 +26,6 @@ class FlashcardCreateTests(TestCase):
             title="Private set", 
             flashcard_collection=cls.private_collection,
             description="Private description")
-        cls.private_flashcard = FlashCard.objects.create(
-            question="Private question", 
-            answer="Private answer", 
-            difficulty="easy",
-            flashcard_set=cls.private_set)
         
     def test_get_create_flashcard_as_logged_out_user(self):
         response = self.client.post(f"/flashcard/collections/{self.private_collection.id}/{self.private_set.id}/create", data={
