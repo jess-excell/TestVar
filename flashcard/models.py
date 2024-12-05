@@ -55,5 +55,9 @@ class Comment(models.Model):
     flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comment")
     
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.comment
