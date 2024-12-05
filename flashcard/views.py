@@ -187,7 +187,7 @@ class FlashcardDetailView(DetailView):
 
         if not collection.public and collection.user != self.request.user and not self.request.user.is_superuser:
             raise Http404("You do not have permission to view this collection.")
-        
+        context["collection"]=collection
         return context
     
 class CommentListView(ListView):

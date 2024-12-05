@@ -5,27 +5,27 @@
         <div class="mt-auto p-5">
             <h1 class="display-1">{{flashcard.question}}</h1>
             <p class="lead">Difficulty: {{flashcard.difficulty.title}}</p>
+            <div class="mb-3">
+              <a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#answerBox" role="button" aria-expanded="false" aria-controls="answerBox">
+                Toggle answer
+              </a>
+            </div>
+          <div class="collapse" id="answerBox">
+              <div class="card card-body m-3">
+                Answer: {{flashcard.answer}}
+              </div>
+          </div>
             <div>
-                <a href="{% url 'flashcard-list' collection_id=collection_id set_id=set_id %}" class="btn btn-outline-secondary">Back</a>
-
-                <button id="menuDropDown" type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                    Modify flashcard
-                  </button>
+              {% if collection.user == user %}
+                <button id="menuDropDown" type="button" class="btn btn-warning mx-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                      Modify flashcard
+                </button>
                 <ul class="dropdown-menu" aria-labelledby="menuDropDown">
                     <li><a href="{% url 'flashcard-update' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="text-warning text-decoration-none fw-bolder ms-2">Edit flashcard</a></li>
                     <li><a href="{% url 'flashcard-delete' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="text-danger text-decoration-none fw-bolder ms-2">Delete flashcard</a></li>
-                  </ul>
-                
-                
-            </div>
-        </div>
-        
-        <a class="btn btn-secondary" data-bs-toggle="collapse" href="#answerBox" role="button" aria-expanded="false" aria-controls="answerBox">
-            Show answer
-          </a>
-        <div class="collapse" id="answerBox">
-            <div class="card card-body m-3">
-              Answer: {{flashcard.answer}}
+                </ul>
+              {% endif %}
+              <a href="{% url 'flashcard-list' collection_id=collection_id set_id=set_id %}" class="btn btn-secondary">Back</a>
             </div>
         </div>
     </div>    
