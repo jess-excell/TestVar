@@ -108,7 +108,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.get_success_url())
     
     def get_success_url(self):
-        return reverse("flashcard-list", kwargs={
+        return reverse("comments-list", kwargs={
             "collection_id": self.kwargs.get('collection_id'),
             "set_id": self.kwargs.get('set_id')
         })
