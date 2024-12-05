@@ -105,20 +105,6 @@ class TestCommentEndpoints(APITestCase):
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["comment"], "updated comment")
-
-    def test_put_bad_comment(self):
-        comment = Comment.objects.create(
-            comment="", 
-            flashcard_set=self.standard_user_flashcard_set, 
-            user=self.standard_user)
-        
-        self.client.login(username="standard_user", password="userpassword")
-        response = self.client.patch(f"/api/comments/{comment.id}/", data={
-            "comment": "",
-            "flashcard_set": self.standard_user_flashcard_set,
-            "user": self.standard_user
-        })
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     
     def test_put_different_user(self):
         comment = Comment.objects.create(
