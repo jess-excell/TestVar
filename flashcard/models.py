@@ -14,6 +14,10 @@ class FlashcardCollection(models.Model):
     description = models.TextField(default=None, blank=True, null=True)
     public = models.BooleanField(default=False)
     
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return self.title
     
@@ -23,6 +27,10 @@ class FlashcardSet(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField(default=None, blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title
@@ -34,6 +42,10 @@ class FlashCard(models.Model):
         choices=[(tag.value, tag.name.title()) for tag in Difficulty]
     )
     flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE, related_name="flashcard")
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.question
