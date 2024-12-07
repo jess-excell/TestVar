@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection, Comment
+from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection, Comment, Review
 from django.utils import timezone
 
 class TestFlashcard(TestCase):
@@ -331,3 +331,127 @@ class TestComments(TestCase):
     
     def test_to_string(self):
         self.assertEqual(self.comment.comment, str(self.comment))
+        
+class TestReviews(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username="owner", password="password")
+        cls.other_user = User.objects.create_user(username="other", password="password")
+        cls.collection = FlashcardCollection.objects.create(
+            title="Collection", 
+            user=cls.user, 
+            public=True)
+        cls.set = FlashcardSet.objects.create(
+            title="Set", 
+            flashcard_collection=cls.collection, 
+            description="Description")
+        cls.review = Review.objects.create(
+            rating=2,
+            comment="Test comment",
+            flashcard_set=cls.set,
+            user=cls.user
+        )
+    
+    def test_create_review(self):
+        count_before = Review.objects.count()
+        Review.objects.create(
+            comment="New comment",
+            rating=2,
+            user=self.other_user,
+            flashcard_set=self.set
+        )
+        count_after = Review.objects.count()
+        self.assertEqual(count_before + 1, count_after)
+    
+    def test_create_review_no_user(self):
+        with self.assertRaises(Exception):
+            Review.objects.create(
+            comment="New comment",
+            rating=2,
+            flashcard_set=self.set
+        )
+    
+    def test_create_review_invalid_user(self):
+        with self.assertRaises(Exception):
+            Review.objects.create(
+            comment="New comment",
+            rating=2,
+            user=999,
+            flashcard_set=self.set
+        )
+
+    def test_create_review_no_comment(self):
+        count_before = Review.objects.count()
+        Review.objects.create(
+            rating=2,
+            user=self.other_user,
+            flashcard_set=self.set
+        )
+        count_after = Review.objects.count()
+        self.assertEqual(count_before + 1, count_after)
+    
+    def test_create_review_no_set(self):
+        with self.assertRaises(Exception):
+            Review.objects.create(
+                rating=2,
+                comment="New comment",
+                user=self.user
+        )
+    
+    def test_create_review_invalid_set(self):
+        with self.assertRaises(Exception):
+            Review.objects.create(
+                rating=2,
+                comment="New comment",
+                user=self.user,
+                flashcard_set=999
+        )
+    
+    def test_lower_boundary_rating(self):
+        count_before = Review.objects.count()
+        Review.objects.create(
+            rating=1,
+            comment="New comment",
+            user=self.other_user,
+            flashcard_set=self.set
+        )
+        count_after = Review.objects.count()
+        self.assertEqual(count_before + 1, count_after)
+    
+    def test_upper_boundary_rating(self):
+        count_before = Review.objects.count()
+        Review.objects.create(
+            rating=5,
+            comment="New comment",
+            user=self.other_user,
+            flashcard_set=self.set
+        )
+        count_after = Review.objects.count()
+        self.assertEqual(count_before + 1, count_after)
+    
+    def test_past_lower_boundary_rating(self):
+        with self.assertRaises(Exception):
+            Review.objects.create(
+                rating=0,
+                comment="New comment",
+                user=self.user,
+                flashcard_set=self.set
+            )
+    
+    def test_past_upper_boundary_rating(self):
+        with self.assertRaises(Exception):
+            Review.objects.create(
+                rating=6,
+                comment="New comment",
+                user=self.user,
+                flashcard_set=self.set
+            )
+    
+    def test_delete_review(self):
+        initial_count = Review.objects.count()
+        self.review.delete()
+        final_count = Review.objects.count()
+        self.assertEqual(initial_count - 1, final_count)
+    
+    def test_to_string(self):
+        self.assertEqual("@" + self.user.username + " | Rating: " + str(self.review.rating), str(self.review))

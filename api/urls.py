@@ -9,6 +9,7 @@ router.register(r'sets', views.FlashcardSetViewSet)
 router.register(r'collections', views.FlashcardCollectionViewSet)
 router.register(r'comments', views.CommentViewSet)
 router.register(r'users', views.UserViewSet)
+router.register(r'reviews', views.ReviewViewSet)
 
 
 urlpatterns = [

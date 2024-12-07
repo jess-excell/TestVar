@@ -1,6 +1,8 @@
 from django.db import models
 from enum import Enum
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 class Difficulty(Enum):
@@ -61,3 +63,23 @@ class Comment(models.Model):
     
     def __str__(self):
         return self.comment
+
+class Review(models.Model):
+    flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE, related_name="review")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="review")
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    comment = models.TextField(default=None, blank=True, null=True)
+
+    def clean(self):
+        if self.rating < 1 or self.rating > 5:
+            raise ValidationError("Rating must be between 1 and 5.")
+        if not self.rating.is_integer:
+            raise ValidationError("Rating must be an integer.")
+        return super().clean()
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return "@" + self.user.username + " | Rating: " + str(self.rating)

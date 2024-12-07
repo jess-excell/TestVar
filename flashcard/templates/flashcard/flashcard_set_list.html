@@ -38,9 +38,12 @@
                     {% else %}
                         <p class="card-text">The user has not added a description for this set.</p>
                     {% endif %}
+                    {% if set.avg_rating %}
+                        <p class="text-muted">Rating: {{set.avg_rating}}</p>
+                    {% endif %}
 
                     <p class="card-text pt-2">Last updated: {{set.updated_at}}</p>
-                    <a href="{% url 'flashcard-list' collection_id=set.flashcard_collection.pk set_id=set.pk %}" class="btn btn-outline-secondary my-1">Review {{set.title.lower}}</a>
+                    <a href="{% url 'flashcard-list' collection_id=set.flashcard_collection.pk set_id=set.pk %}" class="btn btn-outline-secondary my-1">Go to {{set.title.lower}}</a>
                 </div>
             </div>
         </div>

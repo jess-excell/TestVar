@@ -1,4 +1,4 @@
-from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection, Comment
+from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection, Comment, Review
 from django.contrib.auth.models import User
 from rest_framework import serializers
 import datetime
@@ -72,6 +72,25 @@ class CommentSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
     
     # Ensure you can only add a flashcard set when creating the comment, and can't change it after this
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields["flashcard_set"].read_only = True
+
+class ReviewSerializer(serializers.ModelSerializer):
+    flashcard_set = serializers.PrimaryKeyRelatedField(queryset=FlashcardSet.objects.all())
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    rating = serializers.IntegerField(required=True)
+    
+    # if user left review raise 405 or something
+    class Meta:
+        model = Review
+        fields = ["id", "flashcard_set", "user", "rating", "comment"]
+    
+    def create(self, validated_data):
+        validated_data["user"] = self.context["request"].user
+        return super().create(validated_data)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance:

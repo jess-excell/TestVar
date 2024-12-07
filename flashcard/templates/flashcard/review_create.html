@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="overflow-hidden p-3 text-center">
+        <div class="mx-auto p-3">
+            <h1 class="display-1">Review</h1>
+            <p class="lead">Leave a review for {{set.title}}.</p>
+        </div>
+    </div>
+    
+    <form action="{% url 'review-create' set_id=set_id collection_id=collection_id %}" method="POST" class="col-md-5 mx-auto">
+        {% csrf_token %}
+        {% for item in form %}
+            <div class="p-2">
+                <p class="form-label">{{item.label}}</p>
+                {{item}}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary mt-2">Leave review</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="display-1">Reviews</h1>
+    <h4 class="lead">{{flashcard_set.title}}</h4>
+    
+    {% if reviewed %}
+    <a href="{% url 'review-update' collection_id=collection_id set_id=set_id review_id=review_id %}" class="btn btn-primary mt-3">Edit review</a>
+    <a href="{% url 'review-delete' collection_id=collection_id set_id=set_id review_id=review_id %}" class="btn btn-danger mt-3">Delete review</a>
+    {% else %}
+    <a href="{% url 'review-create' collection_id=collection_id set_id=set_id %}" class="btn btn-primary mt-3">Create review</a>
+    {% endif %}
+    <a href="{% url 'flashcard-list' collection_id=collection_id set_id=set_id %}" class="btn btn-secondary mt-3">Back to {{flashcard_set.title}}</a>
+    <div class="mx-5 py-2">
+    {% if review %}
+        {% for comment in review %}
+        <div class="text-start card border-0 p-3 mx-5 my-2 ">
+            <span class="lead fw-normal">@{{comment.user}} <small class="text-secondary"> {{comment.rating}} / 5</small></span>
+            {% if comment.comment %}
+            <span class="text-muted">{{comment.comment}}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="lead p-2">There are no reviews for this flashcard set. Be the first to add one!</p>
+    {% endif %}
+    </div>
+{% endblock %}

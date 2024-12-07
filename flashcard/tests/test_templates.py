@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection
+from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection, Review
 
 class FlashcardTemplateTests(TestCase):
     @classmethod
@@ -160,5 +160,46 @@ class FlashcardCollectionTemplateTests(TestCase):
         self.client.login(username="user", password="password")
         response = self.client.get(f"/flashcard/collections/{self.public_collection.id}/delete")
         self.assertTemplateUsed(response, "flashcard/flashcard_collection_delete.html")
+
+
+class ReviewTemplateTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username="user", password="password")
+        
+        cls.collection = FlashcardCollection.objects.create(
+            title="Collection", 
+            user=cls.user, 
+            public=True)
+        cls.set = FlashcardSet.objects.create(
+            title="Public set title", 
+            flashcard_collection=cls.collection, 
+            description="Description")
+        cls.review = Review.objects.create(
+            flashcard_set=cls.set,
+            user=cls.user,
+            rating=3,
+            comment=""
+        )
+    
+    def test_template_used_read(self):
+        response = self.client.get(f"/flashcard/collections/{self.collection.id}/{self.set.id}/reviews")
+        self.assertTemplateUsed(response, "flashcard/review_list.html")
+    
+    def test_template_used_create(self):
+        self.review.delete() # delete so not redirected to edit existing review
+        self.client.login(username="user", password="password")
+        response = self.client.get(f"/flashcard/collections/{self.collection.id}/{self.set.id}/reviews/create")
+        self.assertTemplateUsed(response, "flashcard/review_create.html")
+    
+    def test_template_used_update(self):
+        self.client.login(username="user", password="password")
+        response = self.client.get(f"/flashcard/collections/{self.collection.id}/{self.set.id}/reviews/{self.review.id}/update")
+        self.assertTemplateUsed(response, "flashcard/review_update.html")
+    
+    def test_template_used_delete(self):
+        self.client.login(username="user", password="password")
+        response = self.client.get(f"/flashcard/collections/{self.collection.id}/{self.set.id}/reviews/{self.review.id}/delete")
+        self.assertTemplateUsed(response, "flashcard/review_delete.html")
         
         # missing tests for comments

@@ -9,9 +9,13 @@
         {% else %}
             <p class="lead">The user has not added a description for this collection.</p>
         {% endif %}
+        {% if avg_rating %}
+        <p class="text-muted">Rating: {{avg_rating}}/5</p>
+        {% endif %}
 
         <div class="my-2">
-            <a href="{% url 'comments-list' collection_id=collection_id set_id=set_id %}" class="btn btn-primary my-1">View comments</a>
+            <a href="{% url 'comments-list' collection_id=collection_id set_id=set_id %}" class="btn btn-outline-secondary my-1">View discussion</a>
+            <a href="{% url 'review-list' collection_id=collection_id set_id=set_id %}" class="btn btn-outline-secondary my-1">View reviews</a>
             {% if flashcard_collection.user == user %}
                 <a href="{% url 'set-update' collection_id=collection_id set_id=set_id %}" class="btn btn-warning my-1">Edit set</a>
                 <a href="{% url 'set-delete' collection_id=collection_id set_id=set_id %}" class="btn btn-danger my-1">Delete set</a>

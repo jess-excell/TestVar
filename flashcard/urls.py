@@ -20,6 +20,13 @@ urlpatterns = [
     as_view(), name="comments-list"),
     path('collections/<int:collection_id>/<int:set_id>/comments/create', CommentCreateView.as_view(), name="comments-create"),
     
+    # Sets - reviews
+    path('collections/<int:collection_id>/<int:set_id>/reviews', ReviewListView.
+    as_view(), name="review-list"),
+    path('collections/<int:collection_id>/<int:set_id>/reviews/create', ReviewCreateView.as_view(), name="review-create"),
+    path('collections/<int:collection_id>/<int:set_id>/reviews/<int:review_id>/update', ReviewUpdateView.as_view(), name="review-update"),
+    path('collections/<int:collection_id>/<int:set_id>/reviews/<int:review_id>/delete', ReviewDeleteView.as_view(), name="review-delete"),
+    
     # Flashcards
     path('collections/<int:collection_id>/<int:set_id>', FlashcardListView.as_view(), name="flashcard-list"),
     path('collections/<int:collection_id>/<int:set_id>/<int:flashcard_id>', FlashcardDetailView.as_view(), name="flashcard-detail"),

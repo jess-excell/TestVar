@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user == review.user %}
+        <div class="overflow-hidden p-3 text-center">
+            <div class="mx-auto p-3">
+                <h1 class="display-1">Review</h1>
+                <p class="lead">Edit your review for {{set.title}}.</p>
+            </div>
+        </div>
+
+        <form action="" method="POST">
+            {% csrf_token %}
+            {% for item in form %}
+                <div class="p-2">
+                    <p class="form-label">{{item.label}}</p>
+                    {{item}}
+                </div>
+            {% endfor %}
+            <input type="submit" label="Update" class="btn btn-secondary"/>
+        </form>
+    {% else %}
+        <p class="lead fw-normal">You don't have permission to modify this review.</p>
+        <a href="{% url 'collection-list' %}" class="btn btn-outline-secondary">Back to reviews</a>
+    {% endif %}
+{% endblock %}

@@ -1,10 +1,11 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.http.response import HttpResponseRedirect
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
-from .models import FlashCard, FlashcardSet, FlashcardCollection, Comment
+from .models import FlashCard, FlashcardSet, FlashcardCollection, Comment, Review
 from django.urls import reverse
 import datetime
 
@@ -135,7 +136,7 @@ class FlashcardSetListView(ListView):
     template_name="flashcard/flashcard_set_list.html"
     
     def get_queryset(self):
-        return FlashcardSet.objects.filter(flashcard_collection_id=self.kwargs.get('collection_id'))
+        return FlashcardSet.objects.filter(flashcard_collection_id=self.kwargs.get('collection_id')).annotate(avg_rating=Avg("review__rating")).order_by("-avg_rating")
 
     # Get flashcard collection info
     def get_context_data(self, **kwargs):
@@ -145,7 +146,7 @@ class FlashcardSetListView(ListView):
         context['flashcard_collection'] = get_object_or_404(FlashcardCollection, id=collection_id)
         if context['flashcard_collection'].user != self.request.user and context['flashcard_collection'].public != True and not self.request.user.is_superuser:
             raise Http404("You do not have permission to view this collection.")
-
+        
         return context
     
 class FlashcardListView(ListView):
@@ -166,11 +167,13 @@ class FlashcardListView(ListView):
         context['collection_id'] = collection_id
         context['set_id'] = set_id
         context["flashcard_collection"] = get_object_or_404(FlashcardCollection, id=collection_id)
+
         
         if context["flashcard_collection"].user != self.request.user and not context["flashcard_collection"].public and not self.request.user.is_superuser:
             raise Http404("You do not have permission to view this collection.")
         
         context['flashcard_set'] = get_object_or_404(FlashcardSet, id=set_id)
+        context['avg_rating'] = Review.objects.filter(flashcard_set=context["flashcard_set"]).aggregate(Avg("rating"))["rating__avg"]
         return context
     
 class FlashcardDetailView(DetailView):
@@ -372,5 +375,172 @@ class FlashCardDeleteView(LoginRequiredMixin, DeleteView):
         return reverse("flashcard-list", kwargs={
             "collection_id": self.kwargs.get('collection_id'),
             "set_id": self.kwargs.get("set_id")
+        })
+# endregion
+
+# region Review
+class ReviewCreateView(LoginRequiredMixin, CreateView):
+    model=Review
+    fields=["rating", "comment"]
+    template_name="flashcard/review_create.html"
+    login_url="/login"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collection_id'] = self.kwargs['collection_id']
+        context['set_id'] = self.kwargs['set_id']
+        
+        context["set"] = get_object_or_404(FlashcardSet, id=context["set_id"])
+        return context        
+
+    def dispatch(self, request, *args, **kwargs):
+        collection_id=self.kwargs.get("collection_id")
+        set_id=self.kwargs.get("set_id")
+        collection = get_object_or_404(FlashcardCollection, id=collection_id)
+        
+        if not collection.public and collection.user != self.request.user:
+            raise Http404("Could not find set.")
+
+        if self.request.user.is_anonymous:
+            return super().dispatch(request, *args, **kwargs)
+        
+        x = Review.objects.filter(
+            user=self.request.user, 
+            flashcard_set__id=set_id).first()
+        if x is not None:
+            return HttpResponseRedirect(reverse("review-update", kwargs={
+                "collection_id": collection_id,
+                "set_id": set_id,
+                "review_id": x.id
+            }))
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        # Add check for number rating
+        self.object.user = self.request.user
+        self.object.flashcard_set = FlashcardSet.objects.get(pk=self.kwargs["set_id"])
+        self.object.save()
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse("review-list", kwargs={
+            "collection_id": self.kwargs.get('collection_id'),
+            "set_id": self.kwargs.get('set_id')
+        })
+
+class ReviewListView(ListView):
+    model=Review
+    context_object_name="review"
+    template_name="flashcard/review_list.html"
+    
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Review.objects.filter(flashcard_set__id=self.kwargs.get("set_id"))
+        else:
+            return Review.objects.filter(flashcard_set__id=self.kwargs.get("set_id"), flashcard_set__flashcard_collection__public=True)
+    
+    def dispatch(self, request, *args, **kwargs):
+        collection_id=self.kwargs.get("collection_id")
+        set_id=self.kwargs.get("set_id")
+        collection = get_object_or_404(FlashcardCollection, id=collection_id)
+        
+        if not collection.public and collection.user != self.request.user:
+            raise Http404("Could not find set.")
+
+        if self.request.user.is_anonymous:
+            return super().dispatch(request, *args, **kwargs)
+        
+        x = Review.objects.filter(
+            user=self.request.user, 
+            flashcard_set__id=set_id).first()
+        
+        if x is not None:
+            return HttpResponseRedirect(reverse("review-update", kwargs={
+                "collection_id": collection_id,
+                "set_id": set_id,
+                "review_id": x.id
+            }))
+            
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collection_id'] = self.kwargs.get('collection_id')
+        context['set_id'] = self.kwargs.get('set_id')
+        context["flashcard_set"] = get_object_or_404(FlashcardSet, id=context['set_id'])
+        
+        if self.request.user.is_anonymous:
+            context["reviewed"] = False
+            return context
+        
+        x = Review.objects.filter(
+            user=self.request.user, 
+            flashcard_set__id=self.kwargs.get('set_id')).first()
+        if x is not None:
+            context["reviewed"] = True
+            context["review_id"]=x.id
+        else:
+            context["reviewed"] = False
+        return context
+
+class ReviewUpdateView(LoginRequiredMixin, UpdateView):
+    model=Review
+    fields=["rating", "comment"]
+    template_name="flashcard/review_update.html"
+    pk_url_kwarg="review_id"
+    login_url="/login"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collection_id'] = self.kwargs['collection_id']
+        context['set_id'] = self.kwargs['set_id']
+        context["set"] = get_object_or_404(FlashcardSet, id=context['set_id'])
+        return context
+    
+    def get_object(self, queryset = None):
+        review = super().get_object(queryset)
+        collection = get_object_or_404(FlashcardCollection, id=self.kwargs['collection_id'])
+        
+        if collection.user != self.request.user:
+            raise PermissionDenied("You don't have permission to modify this.")
+        return review
+    
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.save()
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse("review-list", kwargs={
+            "collection_id": self.kwargs.get('collection_id'),
+            "set_id": self.kwargs.get('set_id')
+        })
+
+class ReviewDeleteView(LoginRequiredMixin, DeleteView):
+    model=Review
+    template_name="flashcard/review_delete.html"
+    pk_url_kwarg="review_id"
+    login_url="/login"
+    
+    def get_object(self, queryset = None):
+        review = super().get_object(queryset)
+        collection = get_object_or_404(FlashcardCollection, id=self.kwargs['collection_id'])
+        
+        if collection.user != self.request.user and not self.request.user.is_superuser:
+            raise PermissionDenied("You don't have permission to delete this.")
+        return review
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collection_id'] = self.kwargs['collection_id']
+        context['set_id'] = self.kwargs['set_id']
+        return context
+    
+    def get_success_url(self):
+        return reverse("review-list", kwargs={
+            "collection_id": self.kwargs.get('collection_id'),
+            "set_id": self.kwargs.get('set_id')
         })
 # endregion

@@ -181,7 +181,44 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == "destroy":
             return [permissions.IsAuthenticated()]
         return [permissions.IsAdminUser()]
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = Review.objects.all()
     
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Review.objects.all()
+        if self.request.user.is_authenticated:
+            return Review.objects.filter(Q(user=self.request.user) | Q(flashcard_set__flashcard_collection__public=True))
+        return Review.objects.filter(flashcard_set__flashcard_collection__public=True)
+    
+    def create(self, request, *args, **kwargs):
+        flashcard_set = get_object_or_404(FlashcardSet, id=request.data.get("flashcard_set"))
+        flashcard_collection = flashcard_set.flashcard_collection
+        if ((request.user != flashcard_collection.user) and not flashcard_collection.public):
+            return HttpResponseForbidden("You are trying to add a review to a private set that you do not own.")
+        
+        x = Review.objects.filter(
+            user=self.request.user, 
+            flashcard_set__id=flashcard_set.id).first()
+        if x is not None:
+            return HttpResponseForbidden("You have already created a review for this set.")
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if request.user != self.get_object().user:
+            return HttpResponseForbidden("You do not have permission to modify this review.")
+        else:
+            return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_superuser and request.user != self.get_object().user:
+            return HttpResponseForbidden("You do not have permission to delete this set.")
+        else:
+            return super().destroy(request, *args, **kwargs)
+
 # Get API doesn't need a modelviewset
 class APIVersionView(APIView):
     def get(self, request):
