@@ -2,7 +2,10 @@
 
 {% block content %}
     <h1 class="display-1">Reviews</h1>
-    <h4 class="lead">{{flashcard_set.title}}</h4>
+    <h4 class="lead">{{flashcard_set.title}} | 
+    {% if avg_rating %}
+    Overall rating: {{avg_rating|truncatechars_html:5|slice:"-2"}}/5
+    {% endif %}</h4>
     
     {% if reviewed %}
     <a href="{% url 'review-update' collection_id=collection_id set_id=set_id review_id=review_id %}" class="btn btn-primary mt-3">Edit review</a>

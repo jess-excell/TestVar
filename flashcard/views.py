@@ -173,7 +173,6 @@ class FlashcardListView(ListView):
             raise Http404("You do not have permission to view this collection.")
         
         context['flashcard_set'] = get_object_or_404(FlashcardSet, id=set_id)
-        context['avg_rating'] = Review.objects.filter(flashcard_set=context["flashcard_set"]).aggregate(Avg("rating"))["rating__avg"]
         return context
     
 class FlashcardDetailView(DetailView):
@@ -455,6 +454,7 @@ class ReviewListView(ListView):
         context['collection_id'] = self.kwargs.get('collection_id')
         context['set_id'] = self.kwargs.get('set_id')
         context["flashcard_set"] = get_object_or_404(FlashcardSet, id=context['set_id'])
+        context['avg_rating'] = Review.objects.filter(flashcard_set=context["flashcard_set"]).aggregate(Avg("rating"))["rating__avg"]
         
         if self.request.user.is_anonymous:
             context["reviewed"] = False

@@ -9,30 +9,28 @@
 </div>
 
 <ul class="container d-flex flex-wrap justify-content-start">
-    <div class="card m-2 p-2 bg-secondary text-light" style="flex: 1 1 30%; min-width: 250px;">
-        <div class="card-body text-start p-4">
-            <h5 class="card-title fw-light fs-2">New collection</h5>
-            <p class="card-text">Create a new collection!</p>
-            <a href="{% url 'collection-create' %}" class="btn btn-outline-light">Create a new collection</a>
-        </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'collection-create' %}" class="btn btn-secondary border-secondary d-block m-2 p-3 text-start" style="flex: 1 1 30%; min-width: 250px; max-width: 500px;">
+            <div class="card-body text-start p-4">
+                <h5 class="card-title fw-light fs-2">New collection</h5>
+                <p class="card-text">Create a new collection!</p>
+            </div>
+        </a>
     </div>
     {% for collection in collections %}
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card m-2 p-2" style="flex: 1 1 30%; min-width: 250px;">
-                <div class="card-body text-start p-4">
-                    <h5 class="card-title fw-light fs-2">{{collection.title}}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted fw-light">Created by: {{collection.user.username}}</h6>
-                    {% if collection.description %}
-                        <p class="card-text">{{collection.description}}</p>
-                    {% else %}
-                        <p class="card-text">The user has not added a description for this collection.</p>
-                    {% endif %}
-
-                    <a href="{% url 'set-list' collection_id=collection.id %}" class="btn btn-outline-secondary">View this collection</a>
-                </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'set-list' collection_id=collection.id %}" class="btn btn-outline-secondary border-secondary d-block m-2 p-3 text-start" style="flex: 1 1 30%; min-width: 250px; max-width: 500px;">
+            <div class="card-body text-start p-4">
+                <h5 class="card-title fw-light fs-2">{{collection.title}}</h5>
+                <h6 class="card-subtitle mb-2 fw-light">Created by: {{collection.user.username}}</h6>
+                {% if collection.description %}
+                    <p class="card-text">{{collection.description}}</p>
+                {% else %}
+                    <p class="card-text">The user has not added a description for this collection.</p>
+                {% endif %}
             </div>
-        </div>
-    {% endfor %}
+        </a>
     </div>
+    {% endfor %}
 </ul>
 {% endblock %}

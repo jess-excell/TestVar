@@ -9,9 +9,6 @@
         {% else %}
             <p class="lead">The user has not added a description for this collection.</p>
         {% endif %}
-        {% if avg_rating %}
-        <p class="text-muted">Rating: {{avg_rating}}/5</p>
-        {% endif %}
 
         <div class="my-2">
             <a href="{% url 'comments-list' collection_id=collection_id set_id=set_id %}" class="btn btn-outline-secondary my-1">View discussion</a>
@@ -25,25 +22,25 @@
 </div>  
 <ul class="container d-flex flex-wrap justify-content-start">
     {% if flashcard_collection.user == user %}
-    <div class="card m-2 p-2 bg-secondary text-light" style="flex: 1 1 30%; min-width: 250px; max-width: 500px;">
-        <div class="card-body text-start p-4">
-            <h5 class="card-title fw-light fs-2">New flashcard</h5>
-            <h6 class="card-subtitle mb-2 text-muted fw-light"></h6>
-            <p class="card-text">Create a new flashcard!</p>
-            <a href="{% url 'flashcard-create' collection_id=collection_id set_id=set_id %}" class="btn btn-outline-light">Create a new flashcard</a>
-        </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'flashcard-create' collection_id=collection_id set_id=set_id %}" class="btn btn-secondary d-block m-2 p-3 text-start" style="flex: 1 1 30%; min-width: 250px; max-width: 500px;">
+            <div class="card-body text-start p-4">
+                <h5 class="card-title fw-light fs-2">New flashcard</h5>
+                <h6 class="card-subtitle mb-2 text-muted fw-light"></h6>
+                <p class="card-text">Create a new flashcard!</p>
+            </div>
+        </a>
     </div>
     {% endif %}
     {% for flashcard in flashcards %}
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card m-2 p-2" style="flex: 1 1 30%; min-width: 250px;">
-                <div class="card-body text-start p-4">
-                    <h5 class="card-title fw-light fs-2">{{flashcard.question}}</h5>
-                    <p class="card-text">Difficulty: {{flashcard.difficulty.title}}</p>
-                    <a href="{% url 'flashcard-detail' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="btn btn-outline-secondary my-1">See answer</a>
-                </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <a href="{% url 'flashcard-detail' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="btn btn-outline-secondary border-secondary d-block m-2 p-3 text-start" style="flex: 1 1 30%; min-width: 250px; max-width: 500px;">
+            <div class="card-body text-start p-4">
+                <h5 class="card-title fw-light fs-2">{{flashcard.question}}</h5>
+                <p class="card-text">Difficulty: {{flashcard.difficulty.title}}</p>
             </div>
-        </div>
+        </a>
+    </div>
     {% endfor %}
 </ul>
 

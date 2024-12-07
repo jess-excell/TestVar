@@ -15,17 +15,12 @@
                 Answer: {{flashcard.answer}}
               </div>
           </div>
-            <div>
-              {% if collection.user == user %}
-                <button id="menuDropDown" type="button" class="btn btn-warning mx-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                      Modify flashcard
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="menuDropDown">
-                    <li><a href="{% url 'flashcard-update' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="text-warning text-decoration-none fw-bolder ms-2">Edit flashcard</a></li>
-                    <li><a href="{% url 'flashcard-delete' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="text-danger text-decoration-none fw-bolder ms-2">Delete flashcard</a></li>
-                </ul>
-              {% endif %}
+          <div>
               <a href="{% url 'flashcard-list' collection_id=collection_id set_id=set_id %}" class="btn btn-secondary">Back</a>
+              {% if collection.user == user %}
+                <a href="{% url 'flashcard-update' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="btn btn-warning">Edit flashcard</a>
+                <a href="{% url 'flashcard-delete' collection_id=collection_id set_id=set_id flashcard_id=flashcard.pk %}" class="btn btn-danger">Delete flashcard</a>
+              {% endif %}
             </div>
         </div>
     </div>    

@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="overflow-hidden p-3 text-center">
-        <div class="mx-auto p-3">
+        <div class="mx-auto p-3 pb-0">
             <h1 class="display-1">New collection</h1>
             <p class="lead">Create a new flashcard collection.</p>
         </div>
@@ -16,6 +16,7 @@
                 {{item}}
             </div>
         {% endfor %}
+        <a href="{% url 'collection-list' %}" class="btn btn-outline-secondary mt-2">Back to collection list</a>
         <button type="submit" class="btn btn-primary mt-2">Create collection</button>
     </form>
 {% endblock %}
