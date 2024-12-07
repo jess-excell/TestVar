@@ -447,21 +447,7 @@ class ReviewListView(ListView):
         
         if not collection.public and collection.user != self.request.user:
             raise Http404("Could not find set.")
-
-        if self.request.user.is_anonymous:
-            return super().dispatch(request, *args, **kwargs)
-        
-        x = Review.objects.filter(
-            user=self.request.user, 
-            flashcard_set__id=set_id).first()
-        
-        if x is not None:
-            return HttpResponseRedirect(reverse("review-update", kwargs={
-                "collection_id": collection_id,
-                "set_id": set_id,
-                "review_id": x.id
-            }))
-            
+                    
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
