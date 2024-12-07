@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection, Review
+from flashcard.models import FlashCard, FlashcardSet, FlashcardCollection, Review, Comment
 
 class FlashcardTemplateTests(TestCase):
     @classmethod
@@ -202,4 +202,31 @@ class ReviewTemplateTests(TestCase):
         response = self.client.get(f"/flashcard/collections/{self.collection.id}/{self.set.id}/reviews/{self.review.id}/delete")
         self.assertTemplateUsed(response, "flashcard/review_delete.html")
         
-        # missing tests for comments
+class CommentTemplateTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(username="user", password="password")
+        
+        cls.collection = FlashcardCollection.objects.create(
+            title="Collection", 
+            user=cls.user, 
+            public=True)
+        cls.set = FlashcardSet.objects.create(
+            title="Public set title", 
+            flashcard_collection=cls.collection, 
+            description="Description")
+        cls.comment = Comment.objects.create(
+            flashcard_set=cls.set,
+            user=cls.user,
+            comment="TEST"
+        )
+    
+    def test_template_used_read(self):
+        response = self.client.get(f"/flashcard/collections/{self.collection.id}/{self.set.id}/comments")
+        self.assertTemplateUsed(response, "flashcard/comment_list.html")
+    
+    def test_template_used_create(self):
+        self.client.login(username="user", password="password")
+        self.comment.delete()
+        response = self.client.get(f"/flashcard/collections/{self.collection.id}/{self.set.id}/comments/create")
+        self.assertTemplateUsed(response, "flashcard/comment_create.html")
