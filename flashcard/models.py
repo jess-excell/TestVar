@@ -3,6 +3,7 @@ from enum import Enum
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.timezone import now
 
 # Create your models here.
 class Difficulty(Enum):
@@ -47,6 +48,8 @@ class FlashCard(models.Model):
     
     def save(self, *args, **kwargs):
         self.full_clean()
+        self.flashcard_set.updated_at = now()
+        self.flashcard_set.save()
         super().save(*args, **kwargs)
     
     def __str__(self):
