@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="display-3">Log in</h1>
-<form method="post" class="mx-auto p-5 col-md-5">
-    {% csrf_token %}
-    {{form.as_p}}
-    <input type="submit" name="Submit"/>
-</form>
-{% for field in form %}
-    {% for error in field.errors %}
-        <div class="alert alert-danger" role="alert">
-            {{error}}
-        </div>    
+    <h1 class="display-3">Log in</h1>
+    <form method="post" class="mx-auto p-5">
+        {% csrf_token %}
+        {{form.as_p}}
+        <input type="submit" name="Submit"/>
+    </form>
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger" role="alert">
+                {{error}}
+            </div>    
+        {% endfor %}
     {% endfor %}
-{% endfor %}
 {% endblock %}
