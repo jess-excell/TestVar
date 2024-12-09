@@ -12,12 +12,20 @@
         <form action="" method="POST">
             {% csrf_token %}
             {% for item in form %}
-                <div class="p-2">
-                    <p class="form-label">{{item.label}}</p>
-                    {{item}}
+                <div class="mx-5">
+                    {% if item.label == "Rating" %}
+                        <div class="col-md-5 mx-auto pb-3">
+                            <p class="form-label ">Rating</p>
+                            <input type="range" min="1" max="5" name="rating" id="rating" step="1" value="{{ form.rating.value }}" class="form-range" oninput="ratingOutput.innerText = this.value">
+                            <p id="ratingOutput">Please move the slider.</p> 
+                        </div>
+                    {% else %}
+                        <p class="form-label">{{item.label}}</p>
+                        {{item}}
+                    {% endif %}
                 </div>
             {% endfor %}
-            <input type="submit" label="Update" class="btn btn-secondary"/>
+            <input type="submit" label="Update" class="btn btn-secondary mt-3"/>
         </form>
         {% for field in form %}
             {% for error in field.errors %}
