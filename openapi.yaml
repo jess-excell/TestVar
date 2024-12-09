@@ -1,5 +1,5 @@
 openapi: 3.0.0
-info:
+info: 
   title: TestVar - Flashcards API
   description: "A revolutionaly REST API for flashcards"
   version: 1.0.0
@@ -9,7 +9,7 @@ servers:
   - url: http://testvar.difcsi.hu/api
     description: Reference server
 paths:
-  /:
+  /version:
     get:
       summary: "Return the active API version"
       tags:
@@ -25,179 +25,12 @@ paths:
                   version:
                     type: "string"
                     example: "1.0.0"
-  /sets:
-    get:
-      summary: "Get all flashcard sets"
-      tags:
-        - "FlashCard Sets"
-      responses:
-        "200":
-          description: "A list of flashcard sets"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/FlashcardSet"
-    post:
-      summary: "Create a new flashcard set"
-      description: "There can only be 20 new flashcard sets created per day"
-      tags:
-        - "FlashCard Sets"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FlashcardSet"
-      responses:
-        "201":
-          description: "The created flashcard set"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FlashcardSet"
-        "429":
-          description: "You have reached the maximum number of flashcard sets allowed today"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  /sets/{setId}:
-    parameters:
-      - name: setId
-        in: path
-        required: true
-        description: "The ID of the flashcard set"
-        schema:
-          type: "string"
-    get:
-      summary: "Get a flashcard set by ID"
-      tags:
-        - "FlashCard Sets"
-      responses:
-        "200":
-          description: "The flashcard set"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                allOf:
-                  - $ref: "#/components/schemas/FlashcardSet"
-                  - type: "object"
-                    properties:
-                      comments:
-                        type: "array"
-                        description: "Comments on the set"
-                        items:
-                          type: "object"
-                          properties:
-                            comment:
-                              type: "string"
-                              example: "I love this set!"
-                            author:
-                              $ref: "#/components/schemas/User"
-                             
-                      
-                            
 
-                
-        "404":
-          description: "The flashcard set was not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    put:
-      summary: "Update a flashcard set by ID"
-      tags:
-        - "FlashCard Sets"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FlashcardSet"
-      responses:
-        "200":
-          description: "The updated flashcard set"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FlashcardSet"
-        "404":
-          description: "The flashcard set was not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    delete:
-      summary: "Delete a flashcard set by ID"
-      tags:
-        - "FlashCard Sets"
-      responses:
-        "204":
-          description: "The flashcard set was deleted"
-        "404":
-          description: "The flashcard set was not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  /set/{setID}/comment:
-    parameters:
-      - name: setID
-        in: path
-        required: true
-        description: "The ID of the flashcard set"
-        schema:
-          type: "string"
-    post:
-      summary: "Comment on a flashcard set, by the current user"
-      tags:
-        - "FlashCard Sets"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                comment:
-                  type: "string"
-                  example: "I love this set!"
-      responses:
-        "201":
-          description: "The created comment"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Comment"
-        "404":
-          description: "The flashcard set was not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  /sets/{setId}/cards:
-    parameters:
-      - name: setId
-        in: path
-        required: true
-        description: "The ID of the flashcard set"
-        schema:
-          type: "string"
+  /flashcards:
     get:
-      summary: "Get all flashcards in a set"
+      summary: "Return all flashcards visible to the active user"
       tags:
-        - "FlashCard Sets"
-      parameters:
-        - name: shuffle
-          in: query
-          required: false
-          description: "Get the flashcards in a random order"
-          schema:
-            type: "boolean"
+        - "Flashcard"
       responses:
         "200":
           description: "A list of flashcards"
@@ -206,141 +39,127 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/FlashCard"
-        "404":
-          description: "The flashcard set was not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  /users:
-    get:
-      summary: "Get all users"
-      tags:
-        - "Users"
-      responses:
-        "200":
-          description: "A list of users"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/User"
+                  $ref: '#/components/schemas/Flashcard_Get'
+    
     post:
-      summary: "Create a new user"
+      summary: "Create a new flashcard under the active user's name"
       tags:
-        - "Users"
+        - "Flashcard"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: "#/components/schemas/User"
-              - type: object
-                properties:     
-                  password:
-                    type: "string"
-                    format: "password"
-                    example: "password"
-                    nullable: true
+              $ref: "#/components/schemas/Flashcard_Post"
       responses:
         "201":
-          description: "The created user"
+          description: "Flashcard created successfully"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/Flashcard_Get"
         "400":
-          description: "The user could not be created"
+          description: "Bad request"
           content:
-            application/json:
-              schema:
+            application/json: 
+              schema: 
                 $ref: "#/components/schemas/Error"
-  /users/{userId}:
+        "403":
+          description: "Forbidden - either trying to add to a collection you don't own or exceeded daily flashcard limit"
+          content:
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Error"
+
+  /flashcards/{flashcardId}:
     parameters:
-      - name: userId
-        in: path
-        required: true
-        description: "The ID of the user"
-        schema:
-          type: "string"
+        - name: flashcardId
+          in: path
+          required: true
+          description: "The ID of the flashcard collection"
+          schema:
+            type: "string"
     get:
-      summary: "Get a user by ID"
-      tags:
-        - "Users"
+      summary: "Get flashcard by ID"
+      tags: 
+        - "Flashcard"
       responses:
         "200":
-          description: "The user"
+          description: "Flashcard from ID"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
-        "404":
-          description: "The user was not found"
+                  $ref: '#/components/schemas/Flashcard_Get'
+        "403":
+          description: "Authentication details were not provided"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    put:
-      summary: "Update a user by ID"
-      tags:
-        - "Users"
-      description: "Admin status only editable if the current user is an admin"
+        "404":
+          description: "Flashcard not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put: 
+      summary: "Update flashcard by ID"
+      tags: 
+        - "Flashcard"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: "#/components/schemas/User"
-              - type: object
-                properties:     
-                  password:
-                    type: "string"
-                    format: "password"
-                    example: "password"
-                    nullable: true
+              $ref: "#/components/schemas/Flashcard_Put"
       responses:
-        "200":
-          description: "The updated user"
+        "201":
+          description: "Updated flashcard"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                  $ref: '#/components/schemas/Flashcard_Get'
+        "403":
+          description: "User doesn't have permission to modify the flashcard"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
-          description: "The user was not found"
+          description: "Flashcard not found"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
     delete:
-      summary: "Delete a user by ID"
+      summary: "Delete flashcard by ID"
       tags:
-        - "Users"
+        - "Flashcard"
       responses:
         "204":
-          description: "The user was deleted"
-        "404":
-          description: "The user was not found"
+          description: "Flashcard deleted successfully"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /users/{userID}/sets:
+        "403":
+          description: "User does not have permission to delete the flashcard"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Flashcard not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sets:
     get:
-      summary: "Get all flashcard sets created by a user"
+      summary: "Return all flashcard sets visible to the active user"
       tags:
-        - "Users"
-        - "FlashCard Sets"
-      parameters:
-        - name: userID
-          in: path
-          required: true
-          description: "The ID of the user"
-          schema:
-            type: "string"
+        - "Flashcard sets"
       responses:
         "200":
           description: "A list of flashcard sets"
@@ -349,299 +168,1010 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/FlashcardSet"
-        "404":
-          description: "The user was not found"
+                  $ref: '#/components/schemas/FlashcardSet_Get'
+        "403":
+          description: "Authentication details were not provided"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /users/{userID}/collections:
-    get:
-      summary: "Get all flashcard set collections created by a user"
+    post:
+      summary: "Create a new flashcard set under the active user's name"
       tags:
-        - "Collections"
+        - "Flashcard sets"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FlashcardSet_Post"
       responses:
-        "200":
-          description: "A list of flashcard set collections"
+        "201":
+          description: "New flashcard set"
           content:
             application/json:
               schema:
-                type: "array"
-                items:
-                  type: "object"
-                  properties:
-                    comment:
-                      type: "string"  
-                      description: "The user's comment on the set"
-                    set:
-                      $ref: "#/components/schemas/FlashcardSet"
-  /users/{userID}/collections/{collectionID}:
+                $ref: "#/components/schemas/FlashcardSet_Get"
+        "400":
+          description: "Bad request"
+          content:
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Forbidden - either trying to add to a collection you don't own or exceeded daily flashcard limit"
+          content:
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/Error"
+
+  /sets/{setId}:
     parameters:
-      - name: userID
-        in: path
-        required: true
-        description: "The ID of the user"
-        schema:
-          type: "string"
-      - name: collectionID
-        in: path
-        required: true
-        description: "The ID of the collection"
-        schema:
-          type: "string"
+        - name: setId
+          in: path
+          required: true
+          description: "The ID of the flashcard set"
+          schema:
+            type: "string"
     get:
-      summary: "Get a flashcard set collection by ID"
+      summary: "Get a flashard set by ID"
       tags:
-        - "Collections"
+        - "Flashcard sets"
       responses:
         "200":
-          description: "The flashcard set collection"
+          description: "Flashcard set from ID"
           content:
             application/json:
               schema:
-                type: "object"
-                properties:
-                  comment:
-                    type: "string"  
-                    description: "The user's comment on the set"
-                  set:
-                    $ref: "#/components/schemas/FlashcardSet"
-                  user:
-                    $ref: "#/components/schemas/User"  
+                $ref: '#/components/schemas/FlashcardSet_Get'
+        "403":
+          description: "Authentication details were not provided"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "404":
-          description: "The flashcard set collection was not found"
+          description: "Flashcard wasn't found"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
     put:
-      summary: "Update a flashcard set collection by ID"
+      summary: "Update an existing set's details by ID"
       tags:
-        - "Collections"
+        - "Flashcard sets"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                comment:
-                  type: "string"
-                  example: "I love this set!"
+              $ref: "#/components/schemas/FlashcardSet_Put"
       responses:
-        "200":
-          description: "The updated flashcard set collection"
+        "201":
+          description: "Flashcard set successfully updated"
           content:
             application/json:
               schema:
-                type: "object"
-                properties:
-                  comment:
-                    type: "string"  
-                    description: "The user's comment on the set"
-                  set:
-                    $ref: "#/components/schemas/FlashcardSet"
-                  user:
-                    $ref: "#/components/schemas/User"  
-        "404":
-          description: "The flashcard set collection was not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "401":
-          description: "You are not authorized ('logged in') to update this collection"
+                $ref: "#/components/schemas/FlashcardSet_Get"
+    delete:
+      summary: "Delete a set by ID"
+      tags: 
+        - "Flashcard sets"
+      responses:
+        "204": 
+          description: "Flashcard set successfully deleted"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
         "403":
-          description: "You are not allowed to update this collection"
+          description: "Unauthorised"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    delete:
-      summary: "Delete a flashcard set collection by ID"
-      tags:
-        - "Collections"
-      responses:
-        "204":
-          description: "The flashcard set collection was deleted"
         "404":
-          description: "The flashcard set collection was not found"
+          description: "Flashcard set not found"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "401":
-          description: "You are not authorized ('logged in') to delete this collection"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        '403':
-          description: "You are not allowed to delete this collection"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
   /collections:
     get:
-      summary: "Get all flashcard set collections"
+      summary: "Return all flashcard collections visible to the active user"
       tags:
-        - "Collections"
+        - "Flashcard collections"
       responses:
         "200":
-          description: "A list of flashcard set collections"
+          description: "A list of flashcard collections"
           content:
             application/json:
               schema:
                 type: "array"
                 items:
-                  type: "object"
-                  properties:
-                    comment:
-                      type: "string"  
-                      description: "The user's comment on the set"
-                    set:
-                      $ref: "#/components/schemas/FlashcardSet"
-                    User:
-                      $ref: "#/components/schemas/User"  
+                  $ref: '#/components/schemas/FlashcardCollection_Get'
+        "403":
+          description: "Authentication details were not provided"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
-      summary: "Create a new flashcard set collection"
+      summary: "Create a new flashcard collection under the active user's name"
       tags:
-        - "Collections"
+        - "Flashcard collections"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FlashcardCollection_Post"
+      responses:
+        "201":
+          description: "Flashcard collection created successfully"
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/FlashcardCollection_Get'
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Error'
+        "403":
+          description: "Authentication details were not provided"
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Error'
+
+  /collections/{collectionId}:
+    parameters:
+        - name: collectionId
+          in: path
+          required: true
+          description: "The ID of the flashcard collection"
+          schema:
+            type: "string"
+    get:
+      summary: "Get flashcard collection by ID"
+      tags:
+        - "Flashcard collections"
+      responses:
+        "200": 
+          description: "Flashcard collection from ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlashcardCollection_Get"
+        "403": 
+          description: "Authentication details were not provided"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: "Update collection by ID"
+      tags:
+        - "Flashcard collections"
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: "array"
-              items:
-                type: "object"
-                properties:
-                  comment:
-                    type: "string"
-                    example: "I love this set!"
-                  setID:
-                    type: "number"
-                    example: 1
+              $ref: "#/components/schemas/FlashcardCollection_Put"
+      responses:
+        "200": 
+          description: "Flashcard collection updated successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlashcardCollection_Get"
+        "403": 
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
+    delete:
+      summary: "Delete flashcard collection by ID"
+      tags:
+        - "Flashcard collections"
+      responses:
+        "200": 
+          description: "Flashcard collection deleted successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlashcardCollection_Get"
+        "403": 
+          description: "User does not have permission to delete the collection"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Flashcard collection wasn't found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        
+
+  /users:
+    get:
+      summary: "Get all users and their permission level"
+      tags: 
+        - "User"
+      responses:
+        "200":
+          description: "List of all users and permission levels"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/User_Get"
+        "403":
+          description: "Authentication details were not provided or user does not have adequate permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: "Create a new user"
+      tags:
+        - "User"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User_Post"
       responses:
         "201":
-          description: "The created flashcard set collection"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  comment:
-                    type: "string"  
-                    description: "The user's comment on the set"
-                  set:
-                    $ref: "#/components/schemas/FlashcardSet"
-                  user:
-                    $ref: "#/components/schemas/User"  
-        "404":
-          description: "The flashcard set was not found"
+          description: "User successfully created"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /collections/random:
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "User not high enough level to create a new account"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/{userId}:
+    parameters:
+        - name: setId
+          in: path
+          required: true
+          description: "The ID of the flashcard set"
+          schema:
+            type: "string"
     get:
-      summary: "Redirect to a random flashcard set collection"
-      tags:
-        - "Collections"
+      summary: "Get user info by ID"
+      tags: 
+        - "User"
       responses:
-        "302":
-          description: "Redirect to a random flashcard set collection"
-          headers:
-            Location:
+        "200":
+          description: "User info"
+          content:
+            application/json:
               schema:
-                type: "string"
-                example: "/users/1/collections/1"
-        "404":
-          description: "There are no flashcard set collections"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/User_Get"
+        "403":
+          description: "Authentication details were not provided or user does not have adequate permissions"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-                  
+        "404":
+          description: "Could not find the user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: "Update user info by ID"
+      tags: 
+        - "User"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User_Put"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/User_Get"
+        "403":
+          description: "Authentication details were not provided or user does not have adequate permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Could not find the user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: "Delete a user by ID"    
+      tags:
+        - "User"
+      responses:
+        "204":
+          description: "User deleted successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Authentication details were not provided or user does not have adequate permissions"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Could not find the user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  
+  /comments:
+    get:
+      summary: "Get all comments from sets the user has permission to see"
+      tags:
+        - "Comments"
+      responses:
+        "200":
+          description: "List of comments"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Comment_Get"
+        "403":
+          description: "User has not logged in"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      tags:
+        - "Comments"
+      summary: "Create a new comment"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment_Post"
+      responses:
+        "201":
+          description: "Comment created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment_Get"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Unauthorised"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /Comments/{commentId}:
+    parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: "The ID of the flashcard set"
+          schema:
+            type: "integer"
+    get:
+      summary: "Get comment by ID"
+      tags:
+        - "Comments"
+      responses:
+        "200":
+          description: "Comment"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment_Get"
+        "403":
+          description: "Unauthorised"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Unauthorised"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: "Update comment by ID"
+      tags: 
+        - "Comments"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment_Put"
+      responses:
+        "201":
+          description: "Comment added successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment_Get"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Unauthorised"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Comment not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: "Deletes a comment by ID"
+      tags:
+        - Comments
+      responses:
+        "204":
+          description: "Comment deleted successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Unauthorised"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Comment not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /reviews:
+    get:
+      summary: "Get all reviews from sets the user has permission to see"
+      tags:
+        - "Reviews"
+      responses:
+        "200":
+          description: "List of reviews"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Review_Get"
+    post:
+      summary: "Create a review"
+      tags:
+        - "Reviews"
+      responses:
+        "200":
+          description: "List of reviews"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review_Post"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "User doesn't have permission to add to this set"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /reviews/{commentId}:
+    parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: "The ID of the flashcard set"
+          schema:
+            type: "integer"
+    get:
+      summary: "Get review by ID"
+      tags:
+        - "Reviews"
+      responses:
+        "200":
+          description: "Review"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review_Get"
+        "403":
+          description: "User doesn't have permission to view review"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+        "404":
+          description: "Review not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: "Update review by ID"
+      tags:
+        - "Reviews"
+      responses:
+        "200":
+          description: "Review updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review_Put"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "User doesn't have permission to edit the review"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Review not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: "Delete review by ID"
+      tags:
+        - "Reviews"
+      responses:
+        "204":
+          description: "Review deleted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "User doesn't have permission to delete the review"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: "Review not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   schemas:
-    FlashCard:
+    FlashcardCollection_Get:
       type: "object"
       properties:
-        question:
+        id: 
+          nullable: false
+          type: "integer"
+          example: 1
+        title:
+          nullable: false
           type: "string"
-          example: "What is the capital of France?"
-        answer:
-          type: "string"
-          example: "Paris"
-        difficulty:
-          $ref: "#/components/schemas/Difficulty"
+          example: "French 1"
+        description:
           nullable: true
-    FlashcardSet:
+          type: "string"
+          example: "This collection covers French 1."
+        public:
+          nullable: false
+          type: "boolean"
+          example: True
+        user:
+          nullable: false 
+          type: "object"
+          items:
+            $ref: "#/components/schemas/User_Get"
+        flashcard_set:
+          nullable: false
+          type: "object"
+          items:
+            type: integer
+            example: 1
+            nullable: false
+    FlashcardCollection_Put:
+      type: "object"
+      properties:
+        title:
+          nullable: false
+          type: "string"
+          example: "French 1"
+        description:
+          nullable: true
+          type: "string"
+          example: "This collection covers French 1."
+        public:
+          nullable: false
+          type: "boolean"
+          example: True
+        flashcard_set:
+          nullable: false
+          type: "object"
+          items:
+            type: integer
+            example: 1
+            nullable: false
+    FlashcardCollection_Post:
+      type: "object"
+      properties:
+        title:
+          nullable: false
+          type: "string"
+          example: "French 1"
+        description:
+          nullable: true
+          type: "string"
+          example: "This collection covers French 1."
+        public:
+          nullable: false
+          type: "boolean"
+          example: True
+
+    FlashcardSet_Get:
       type: "object"
       properties:
         id:
           type: "number"
           example: 1
-        name:
+          nullable: false
+        title:
           type: "string"
           example: "European Capitals"
-        cards:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/FlashCard"
+          nullable: false
+        description:
+          type: string
+          example: "This is my set description."
+          nullable: true
         created_at:
           type: "string"
           format: "date-time"
           example: "2024-10-14T12:00:00Z"
+          nullable: false
         updated_at:
           type: "string"
           format: "date-time"
           example: "2024-10-15T12:00:00Z"
+          nullable: false
+        flashcard:
+          type: array
+          items:
+            type: integer
+            example: 1
+            nullable: false
+        comments:
+          type: array
+          items: 
+            type: integer
+            example: 1
+            nullable: false
+        flashcard_collection:
+          type: integer
+          example: 1
+          nullable: false
+        user:
+          type: integer
+          example: 1
+          nullable: false
+    FlashcardSet_Put:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+          example: "European Capitals"
+          nullable: false
+        description:
+          type: string
+          example: "This is my set description."
+          nullable: true
+        created_at:
+          type: "string"
+          format: "date-time"
+          example: "2024-10-14T12:00:00Z"
+          nullable: false
+        updated_at:
+          type: "string"
+          format: "date-time"
+          example: "2024-10-15T12:00:00Z"
+          nullable: false
+        flashcard:
+          type: array
+          items:
+            type: integer
+            example: 1
+            nullable: false
+        comments:
+          type: array
+          items: 
+            type: integer
+            example: 1
+            nullable: false
+        flashcard_collection:
+          type: integer
+          example: 1
+          nullable: false
+    FlashcardSet_Post:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+          example: "European Capitals"
+          nullable: false
+        description:
+          type: string
+          example: "This is my set description."
+          nullable: true
+        flashcard_collection:
+          type: integer
+          example: 1
+          nullable: false
+
+    Flashcard_Get:
+      type: "object"
+      properties:
+        id:
+          type: integer
+          example: 1
+          nullable: false
+        question:
+          type: "string"
+          example: "What is the capital of France?"
+          nullable: false
+        answer:
+          type: "string"
+          example: "Paris"
+          nullable: false
+        difficulty:
+          type: array
+          nullable: false  
+          items:
+            $ref: "#/components/schemas/Difficulty"
+        flashcard_set:
+          type: integer
+          example: 1
+          nullable: false
+        user:
+          type: integer
+          example: 1
+          nullable: false
+    Flashcard_Put:
+      type: "object"
+      properties:
+        question:
+          type: "string"
+          example: "What is the capital of France?"
+          nullable: false
+        answer:
+          type: "string"
+          example: "Paris"
+          nullable: false
+        difficulty:
+          type: array
+          nullable: false  
+          items:
+            $ref: "#/components/schemas/Difficulty"
+        flashcard_set:
+          type: integer
+          example: 1
+          nullable: false
+    Flashcard_Post:
+      type: "object"
+      properties:
+        question:
+          type: "string"
+          example: "What is the capital of France?"
+          nullable: false
+        answer:
+          type: "string"
+          example: "Paris"
+          nullable: false
+        difficulty:
+          type: array
+          nullable: false  
+          items:
+            $ref: "#/components/schemas/Difficulty"
+        flashcard_set:
+          type: integer
+          example: 1
+          nullable: false
+    
+    User_Get:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          nullable: false
+        username:
+          type: "string"
+          nullable: false
+        is_superuser:
+          type: boolean
+          nullable: false
+        comments:
+          type: array
+          items:
+            type: integer
+            example: 1
+            nullable: false
+    User_Post:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+          nullable: false
+        password:
+          type: "string"
+          nullable: false
+        is_admin:
+          type: boolean
+          nullable: false
+    User_Put:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+          nullable: false
+        password:
+          type: "string"
+          nullable: true
+        is_admin:
+          type: boolean
+          nullable: false
+
+    Comment_Get:
+      type: object
+      properties:
+        id:
+          type: integer
+          nullable: false
+        comment:
+          type: string
+          nullable: false
+        flashcard_set: 
+          type: integer
+          nullable: false
+        user:
+          type: integer
+          nullable: false
+    Comment_Put:
+      type: object
+      properties:
+        comment:
+          type: string
+          nullable: false
+        flashcard_set: 
+          type: integer
+          nullable: false
+    Comment_Post:
+      type: object
+      properties:
+        comment:
+          type: string
+          nullable: false
+        flashcard_set: 
+          type: integer
+          nullable: false
+    
+    Review_Get:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          nullable: false
+        rating:
+          type: "integer"
+          nullable: false
+        comment:
+          type: "string"
+          nullable: true
+        user:
+          type: "integer"
+          nullable: false
+    Review_Post:
+      type: "object"
+      properties:
+        rating:
+          type: "integer"
+          nullable: false
+        comment:
+          type: "string"
+          nullable: true
+        user:
+          type: "integer"
+          nullable: false
+    Review_Put:
+      type: "object"
+      properties:
+        rating:
+          type: "integer"
+          nullable: false
+        comment:
+          type: "string"
+          nullable: true
+        user:
+          type: "integer"
+          nullable: false
+
+
+    Difficulty:
+      type: "string"
+      nullable: false
+      enum:
+        - "easy"
+        - "medium"
+        - "hard"
     Error:
       type: "object"
       properties:
         message:
           type: "string"
           nullable: false
-    Difficulty:
-      type: "string"
-      enum:
-        - "easy"
-        - "medium"
-        - "hard"
-    User:
-      type: "object"
-      properties:
-        id:
-          type: "number"
-          example: 1
-        username:
-          type: "string"
-          example: "johndoe"
-        admin:
-          type: "boolean"
-          example: false
-          default: false
-          nullable: true
-          description: "The set creation limit should only apply to non-admin users"
-    Comment:
-      type: "object"
-      properties:
-        comment:
-          type: "string"
-          example: "I love this set!"
-        set:
-          $ref: "#/components/schemas/FlashcardSet"
-          nullable: true
-        author:
-          $ref: "#/components/schemas/User"
-          nullable: true
