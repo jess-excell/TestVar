@@ -2,9 +2,9 @@
 
 {% block content %}
     <h1 class="display-1">Reviews</h1>
-    <h4 class="lead">{{flashcard_set.title}} | 
+    <h4 class="lead">{{flashcard_set.title}}
     {% if avg_rating %}
-    Overall rating: {{avg_rating|truncatechars_html:5|slice:"-2"}}/5
+    | Overall rating: {{avg_rating|truncatechars_html:5|slice:"-2"}}/5
     {% endif %}</h4>
     
     {% if reviewed %}
@@ -20,7 +20,7 @@
         <div class="text-start card border-0 p-3 mx-5 my-2 ">
             <span class="lead fw-normal">@{{comment.user}} <small class="text-secondary"> {{comment.rating}} / 5</small></span>
             {% if comment.comment %}
-            <span class="text-muted">{{comment.comment}}</span>
+                <span class="text-muted">{{comment.comment}}</span>
             {% endif %}
         </div>
         {% endfor %}

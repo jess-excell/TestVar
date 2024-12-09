@@ -12,6 +12,13 @@
             {% endfor %}
             <input type="submit" label="Submit" class="btn btn-secondary"/>
         </form>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{error}}
+                </div>    
+            {% endfor %}
+        {% endfor %}
     {% else %}
         <p class="lead fw-normal">You don't have permission to modify "{{flashcard_collection.title}}".</p>
         <a href="{% url 'collection-list' %}" class="btn btn-outline-secondary">Back to collections</a>

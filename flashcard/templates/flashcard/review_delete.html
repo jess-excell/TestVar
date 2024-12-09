@@ -8,6 +8,13 @@
             <input type="submit" value="Delete my review" class="btn btn-danger"/>
             <a href="{% url 'review-list' set_id=set_id collection_id=collection_id%}" class="btn btn-secondary">Back to reviews</a>
         </form>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{error}}
+                </div>    
+            {% endfor %}
+        {% endfor %}
     {% else %}
         <p class="lead fw-normal">You don't have permission to modify this review.</p>
         <a href="{% url 'flashcard-list' set_id=set_id collection_id=collection_id%}" class="btn btn-secondary">Back to flashcards</a>

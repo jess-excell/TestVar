@@ -8,6 +8,13 @@
             <a href="{% url 'flashcard-list' collection_id=collection_id set_id=set_id %}" class="btn btn-secondary">Back to {{flashcard_set.title}}</a>
             <input type="submit" value="Delete my set" class="btn btn-danger"/>
         </form>
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{error}}
+                </div>    
+            {% endfor %}
+        {% endfor %}
     {% else %}
         <p class="lead fw-normal">You don't have permission to modify "{{flashcard_set.title}}".</p>
         <a href="{% url 'flashcard-list' collection_id=collection_id set_id=set_id %}" class="btn btn-outline-secondary">Back to {{flashcard_set.title}}</a>
