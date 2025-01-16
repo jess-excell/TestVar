@@ -1,7 +1,8 @@
 from django.views.generic import TemplateView
-from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse
 
 # Create your views here.
 class LoginInterfaceView(LoginView):
@@ -13,7 +14,8 @@ class LogoutInterfaceView(LogoutView):
 class RegisterView(CreateView):
     form_class=UserCreationForm
     template_name="home/register.html"
-    success_url="/home/creation-success"    
+    def get_success_url(self):
+        return reverse("creation-success")  
 
 class CreationSuccessView(TemplateView):
     template_name='home/creation-success.html'

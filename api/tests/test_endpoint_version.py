@@ -6,4 +6,3 @@ class EndpointVersionTestsGet(APITestCase):
         response = self.client.get('/api/version')
         self.assertEqual(response.status_code, status.HTTP_200_OK) 
         self.assertEqual(response.data, {"version": "1.0.0"})
-
